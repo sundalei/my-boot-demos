@@ -1,31 +1,60 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" encoding="UTF-8" ?>
+<project
+  xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd"
+>
   <modelVersion>4.0.0</modelVersion>
-  <groupId>packt.jee.eclipse.rest.ws.client</groupId>
-  <artifactId>CourseManagementRESTClient</artifactId>
-  <version>1</version>
-  <dependencies>
-  	<dependency>
-  		<groupId>org.glassfish.jersey.core</groupId>
-  		<artifactId>jersey-client</artifactId>
-  		<version>2.27</version>
-  	</dependency>
-  	<dependency>
-  		<groupId>org.glassfish.jersey.inject</groupId>
-  		<artifactId>jersey-hk2</artifactId>
-  		<version>2.27</version>
-  	</dependency>
-  </dependencies>
+
+  <groupId>com.example</groupId>
+  <artifactId>my-boot-demos</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <name>my-boot-demos</name>
+  <description>Demos for various trial and error</description>
+
+  <properties>
+    <spotless.version>3.2.1</spotless.version>
+  </properties>
+
   <build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.1</version>
-				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
+    <plugins>
+      <plugin>
+        <groupId>com.diffplug.spotless</groupId>
+        <artifactId>spotless-maven-plugin</artifactId>
+        <version>${spotless.version}</version>
+        <configuration>
+          <pom>
+            <includes>
+              <include>pom.xml</include>
+            </includes>
+            <sortPom />
+          </pom>
+          <formats>
+            <format>
+              <includes>
+                <include>**/*.xml</include>
+              </includes>
+              <prettier>
+                <devDependencyProperties>
+                  <property>
+                    <name>prettier</name>
+                    <value>3.8.1</value>
+                  </property>
+                  <property>
+                    <name>@prettier/plugin-xml</name>
+                    <value>3.4.2</value>
+                  </property>
+                </devDependencyProperties>
+                <config>
+                  <printWidth>120</printWidth>
+                  <plugins>@prettier/plugin-xml</plugins>
+                </config>
+              </prettier>
+            </format>
+          </formats>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>
