@@ -1,2 +1,0 @@
-InjectionManagerFactory not found with OSGi singe bundles
-https://github.com/jersey/jersey/issues/3588
