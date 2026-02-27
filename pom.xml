@@ -15,7 +15,22 @@
 
   <properties>
     <spotless.version>3.2.1</spotless.version>
+    <prettier.version>3.8.1</prettier.version>
+    <prettier.plugin.xml.version>3.4.2</prettier.plugin.xml.version>
+    <spring-boot.version>4.0.2</spring-boot.version>
   </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-dependencies</artifactId>
+        <version>${spring-boot.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
   <build>
     <plugins>
@@ -24,6 +39,13 @@
         <artifactId>spotless-maven-plugin</artifactId>
         <version>${spotless.version}</version>
         <configuration>
+          <java>
+              <googleJavaFormat>
+                <style>GOOGLE</style>
+                <reflowLongStrings>true</reflowLongStrings>
+                <formatJavadoc>true</formatJavadoc>
+              </googleJavaFormat>
+            </java>
           <pom>
             <includes>
               <include>pom.xml</include>
@@ -39,11 +61,11 @@
                 <devDependencyProperties>
                   <property>
                     <name>prettier</name>
-                    <value>3.8.1</value>
+                    <value>${prettier.version}</value>
                   </property>
                   <property>
                     <name>@prettier/plugin-xml</name>
-                    <value>3.4.2</value>
+                    <value>${prettier.plugin.xml.version}</value>
                   </property>
                 </devDependencyProperties>
                 <config>
