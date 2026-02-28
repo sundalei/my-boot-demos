@@ -13,11 +13,18 @@
   <name>my-boot-demos</name>
   <description>Demos for various trial and error</description>
 
+  <modules>
+    <module>notion-mongo-demo</module>
+  </modules>
+
   <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <maven.compiler.version>3.15.0</maven.compiler.version>
     <spotless.version>3.2.1</spotless.version>
     <prettier.version>3.8.1</prettier.version>
     <prettier.plugin.xml.version>3.4.2</prettier.plugin.xml.version>
-    <spring-boot.version>4.0.2</spring-boot.version>
+    <spring-boot.version>4.0.3</spring-boot.version>
   </properties>
 
   <dependencyManagement>
@@ -33,6 +40,30 @@
   </dependencyManagement>
 
   <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-maven-plugin</artifactId>
+          <version>${spring-boot.version}</version>
+          <executions>
+            <execution>
+              <goals>
+                <goal>repackage</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>${maven.compiler.version}</version>
+          <configuration>
+            <release>21</release>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
     <plugins>
       <plugin>
         <groupId>com.diffplug.spotless</groupId>
@@ -48,7 +79,7 @@
             </java>
           <pom>
             <includes>
-              <include>pom.xml</include>
+              <include>**/pom.xml</include>
             </includes>
             <sortPom />
           </pom>
