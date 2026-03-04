@@ -1,5 +1,7 @@
 package com.example.service;
 
+import com.example.entry.MoneyEntry;
+import com.example.repository.MoneyEntryRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,6 +16,7 @@ public class NotionSyncService {
 
   private static final Logger LOG = LoggerFactory.getLogger(NotionSyncService.class);
 
+  private final MoneyEntryRepository repository;
   private final RestClient restClient;
   private final ObjectMapper mapper;
 
@@ -29,7 +32,8 @@ public class NotionSyncService {
   @Value("${notion.api.url}")
   private String notionApiUrl;
 
-  public NotionSyncService(RestClient.Builder restClientBuilder) {
+  public NotionSyncService(MoneyEntryRepository repository, RestClient.Builder restClientBuilder) {
+    this.repository = repository;
     this.restClient = restClientBuilder.build();
     this.mapper = new ObjectMapper();
   }
@@ -40,6 +44,14 @@ public class NotionSyncService {
 
     // Construct the Base Request Body
     ObjectNode requestBody = mapper.createObjectNode();
+
+    // Add Incremental Sync Filter (if we have a watermark)
+    MoneyEntry latestEntry = repository.findTopByOrderByLastEditedTimeDesc();
+    if (latestEntry != null && latestEntry.getLastEditedTime() != null) {
+      // TODO Add filter
+    } else {
+      LOG.info("First run detected: Fetching ALL records.");
+    }
 
     JsonNode response =
         restClient
