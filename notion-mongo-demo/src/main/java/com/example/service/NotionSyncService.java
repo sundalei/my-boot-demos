@@ -5,6 +5,7 @@ import com.example.repository.MoneyEntryRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import tools.jackson.databind.JsonNode;
@@ -38,7 +39,7 @@ public class NotionSyncService {
     this.mapper = new ObjectMapper();
   }
 
-  public String syncData() {
+  public JsonNode syncData() {
     LOG.info("Starting Notion sync...");
     String url = notionApiUrl + databaseId + "/query";
 
@@ -59,12 +60,11 @@ public class NotionSyncService {
             .uri(url)
             .header("Authorization", "Bearer " + notionToken)
             .header("Notion-Version", notionVersion)
-            .header("Content-Type", "application/json")
+            .contentType(MediaType.APPLICATION_JSON)
             .body(requestBody)
             .retrieve()
             .body(JsonNode.class);
 
-    LOG.info("response {}", response);
-    return "hello";
+    return response;
   }
 }
