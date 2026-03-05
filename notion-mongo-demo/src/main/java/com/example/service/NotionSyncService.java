@@ -2,6 +2,9 @@ package com.example.service;
 
 import com.example.entry.MoneyEntry;
 import com.example.repository.MoneyEntryRepository;
+
+import java.time.Instant;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -54,17 +57,58 @@ public class NotionSyncService {
       LOG.info("First run detected: Fetching ALL records.");
     }
 
-    JsonNode response =
-        restClient
-            .post()
-            .uri(url)
-            .header("Authorization", "Bearer " + notionToken)
-            .header("Notion-Version", notionVersion)
-            .contentType(MediaType.APPLICATION_JSON)
-            .body(requestBody)
-            .retrieve()
-            .body(JsonNode.class);
+    // Pagination Loop
+    boolean hasMore = true;
 
-    return response;
+    while (hasMore) {
+
+      // Execute the request using RestClient
+      JsonNode response =
+          restClient
+              .post()
+              .uri(url)
+              .header("Authorization", "Bearer " + notionToken)
+              .header("Notion-Version", notionVersion)
+              .contentType(MediaType.APPLICATION_JSON)
+              .body(requestBody)
+              .retrieve()
+              .body(JsonNode.class);
+
+      if (response == null) {
+        break;
+      }
+
+      JsonNode results = response.path("results");
+
+      // Parse and Save
+      if (results.isArray()) {
+        for (JsonNode page : results) {
+          String notionId = page.path("id").asString();
+          JsonNode props = page.path("properties");
+
+          // Upsert logic
+          Optional<MoneyEntry> entry = repository.findByNotionId(notionId);
+          MoneyEntry moneyEntry;
+          if (!entry.isPresent()) {
+            moneyEntry = new MoneyEntry();
+            moneyEntry.setNotionId(notionId);
+          } else {
+            moneyEntry = entry.get();
+          }
+
+          // Watermark timestamp
+          String editedTimeStr = page.path("last_edited_time").asString(null);
+          if (editedTimeStr != null) {
+            moneyEntry.setLastEditedTime(Instant.parse(editedTimeStr));
+          }
+
+          LOG.info("notion id {} exist? {}", notionId, entry.isPresent());
+          LOG.info("notionId {}", notionId);
+        }
+      }
+
+      return response;
+    }
+    return null;
   }
 }

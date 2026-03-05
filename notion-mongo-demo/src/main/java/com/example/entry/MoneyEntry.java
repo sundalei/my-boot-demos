@@ -8,6 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class MoneyEntry {
 
   @Id private String id;
+  private String notionId;
   private Instant lastEditedTime; // Watermark for incremental sync
 
   public String getId() {
@@ -16,6 +17,14 @@ public class MoneyEntry {
 
   public void setId(String id) {
     this.id = id;
+  }
+
+  public String getNotionId() {
+    return notionId;
+  }
+
+  public void setNotionId(String notionId) {
+    this.notionId = notionId;
   }
 
   public Instant getLastEditedTime() {
