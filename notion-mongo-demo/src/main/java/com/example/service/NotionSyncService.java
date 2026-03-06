@@ -41,7 +41,7 @@ public class NotionSyncService {
     this.mapper = new ObjectMapper();
   }
 
-  public JsonNode syncData() {
+  public String syncData() {
     LOG.info("Starting Notion sync...");
     String url = notionApiUrl + databaseId + "/query";
 
@@ -51,7 +51,16 @@ public class NotionSyncService {
     // Add Incremental Sync Filter (if we have a watermark)
     MoneyEntry latestEntry = repository.findTopByOrderByLastEditedTimeDesc();
     if (latestEntry != null && latestEntry.getLastEditedTime() != null) {
-      // TODO Add filter
+      LOG.info("Incremental sync: Fetching updates on or after " + latestEntry.getLastEditedTime());
+
+      ObjectNode filter = mapper.createObjectNode();
+      filter.put("timestamp", "last_edited_time");
+
+      ObjectNode lastEditedTime = mapper.createObjectNode();
+      lastEditedTime.put("on_or_after", latestEntry.getLastEditedTime().toString());
+
+      filter.set("last_edited_time", lastEditedTime);
+      requestBody.set("filter", filter);
     } else {
       LOG.info("First run detected: Fetching ALL records.");
     }
@@ -101,13 +110,32 @@ public class NotionSyncService {
             moneyEntry.setLastEditedTime(Instant.parse(editedTimeStr));
           }
 
+          // Properties based on the money_entry database setup
+          moneyEntry.setAmount(props.path("Amount").path("number").asDouble(0.0));
+
+          JsonNode remarkNode = props.path("Remark").path("rich_text");
+          if (remarkNode.isArray() && !remarkNode.isEmpty()) {
+            moneyEntry.setRemark(remarkNode.get(0).path("plain_text").asString(""));
+          }
+
+          LOG.info("money entry {}", moneyEntry);
           LOG.info("notion id {} exist? {}", notionId, entry.isPresent());
-          LOG.info("notionId {}", notionId);
         }
       }
 
-      return response;
+      // Update Pagination Flags
+      hasMore = response.path("has_more").asBoolean(false);
+
+      if (hasMore) {
+        // To respect Notion's rate limit (3 req/sec)
+        try {
+          Thread.sleep(500);
+        } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
+          throw new RuntimeException("Notion sync interrupted during pagination", e);
+        }
+      }
     }
-    return null;
+    return "Hello";
   }
 }

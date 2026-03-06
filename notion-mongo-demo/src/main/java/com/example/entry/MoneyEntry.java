@@ -10,6 +10,8 @@ public class MoneyEntry {
   @Id private String id;
   private String notionId;
   private Instant lastEditedTime; // Watermark for incremental sync
+  private Double amount;
+  private String remark;
 
   public String getId() {
     return id;
@@ -33,5 +35,36 @@ public class MoneyEntry {
 
   public void setLastEditedTime(Instant lastEditedTime) {
     this.lastEditedTime = lastEditedTime;
+  }
+
+  public Double getAmount() {
+    return amount;
+  }
+
+  public void setAmount(Double amount) {
+    this.amount = amount;
+  }
+
+  public String getRemark() {
+    return remark;
+  }
+
+  public void setRemark(String remark) {
+    this.remark = remark;
+  }
+
+  @Override
+  public String toString() {
+    return "MoneyEntry [id="
+        + id
+        + ", notionId="
+        + notionId
+        + ", lastEditedTime="
+        + lastEditedTime
+        + ", amount="
+        + amount
+        + ", remark="
+        + remark
+        + "]";
   }
 }
