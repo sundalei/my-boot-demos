@@ -2,7 +2,6 @@ package com.example.service;
 
 import com.example.entry.MoneyEntry;
 import com.example.repository.MoneyEntryRepository;
-
 import java.time.Instant;
 import java.util.Optional;
 import org.slf4j.Logger;

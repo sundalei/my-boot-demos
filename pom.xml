@@ -1,9 +1,5 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<project
-  xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd"
->
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.example</groupId>
@@ -71,23 +67,28 @@
         <version>${spotless.version}</version>
         <configuration>
           <java>
-              <googleJavaFormat>
-                <style>GOOGLE</style>
-                <reflowLongStrings>true</reflowLongStrings>
-                <formatJavadoc>true</formatJavadoc>
-              </googleJavaFormat>
-            </java>
+            <googleJavaFormat>
+              <style>GOOGLE</style>
+              <reflowLongStrings>true</reflowLongStrings>
+              <formatJavadoc>true</formatJavadoc>
+            </googleJavaFormat>
+          </java>
           <pom>
             <includes>
               <include>**/pom.xml</include>
             </includes>
-            <sortPom />
+            <sortPom/>
           </pom>
           <formats>
             <format>
               <includes>
                 <include>**/*.xml</include>
               </includes>
+              <excludes>
+                <exclude>**/pom.xml</exclude>
+                <exclude>**/target/**</exclude>
+                <exclude>**/node_modules/**</exclude>
+              </excludes>
               <prettier>
                 <devDependencyProperties>
                   <property>
@@ -106,6 +107,20 @@
               </prettier>
             </format>
           </formats>
+          <json>
+            <includes>
+              <include>**/*.json</include>
+            </includes>
+            <excludes>
+              <exclude>**/target/**</exclude>
+              <exclude>**/node_modules/**</exclude>
+            </excludes>
+            <gson>
+              <indentSpaces>4</indentSpaces>
+              <sortByKeys>false</sortByKeys>
+              <escapeHtml>false</escapeHtml>
+            </gson>
+          </json>
         </configuration>
       </plugin>
     </plugins>
