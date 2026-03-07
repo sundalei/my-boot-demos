@@ -1,6 +1,7 @@
 package com.example.entry;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -12,6 +13,8 @@ public class MoneyEntry {
   private Instant lastEditedTime; // Watermark for incremental sync
   private Double amount;
   private String remark;
+  private LocalDateTime time;
+  private String tag;
 
   public String getId() {
     return id;
@@ -53,6 +56,22 @@ public class MoneyEntry {
     this.remark = remark;
   }
 
+  public LocalDateTime getTime() {
+    return time;
+  }
+
+  public void setTime(LocalDateTime time) {
+    this.time = time;
+  }
+
+  public String getTag() {
+    return tag;
+  }
+
+  public void setTag(String tag) {
+    this.tag = tag;
+  }
+
   @Override
   public String toString() {
     return "MoneyEntry [id="
@@ -65,6 +84,10 @@ public class MoneyEntry {
         + amount
         + ", remark="
         + remark
+        + ", time="
+        + time
+        + ", tag="
+        + tag
         + "]";
   }
 }

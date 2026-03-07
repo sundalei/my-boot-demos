@@ -3,6 +3,8 @@ package com.example.service;
 import com.example.entry.MoneyEntry;
 import com.example.repository.MoneyEntryRepository;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +59,7 @@ public class NotionSyncService {
       filter.put("timestamp", "last_edited_time");
 
       ObjectNode lastEditedTime = mapper.createObjectNode();
-      lastEditedTime.put("on_or_after", latestEntry.getLastEditedTime().toString());
+      lastEditedTime.put("after", latestEntry.getLastEditedTime().toString());
 
       filter.set("last_edited_time", lastEditedTime);
       requestBody.set("filter", filter);
@@ -67,10 +69,15 @@ public class NotionSyncService {
 
     // Pagination Loop
     boolean hasMore = true;
+    String nextCursor = null;
 
     while (hasMore) {
+      if (nextCursor != null && !nextCursor.equals("null")) {
+        requestBody.put("start_cursor", nextCursor);
+      }
 
       // Execute the request using RestClient
+      LOG.info("request body {}", requestBody);
       JsonNode response =
           restClient
               .post()
@@ -118,8 +125,21 @@ public class NotionSyncService {
             moneyEntry.setRemark(remarkNode.get(0).path("plain_text").asString(""));
           }
 
-          LOG.info("money entry {}", moneyEntry);
-          LOG.info("notion id {} exist? {}", notionId, entry.isPresent());
+          JsonNode timeNode = props.path("Time").path("rich_text");
+          if (timeNode.isArray() && !timeNode.isEmpty()) {
+            String dateStr = timeNode.get(0).path("plain_text").asString();
+            moneyEntry.setTime(
+                LocalDateTime.parse(dateStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+          }
+
+          JsonNode tagNode = props.path("Tag").path("rich_text");
+          if (tagNode.isArray() && !tagNode.isEmpty()) {
+            moneyEntry.setTag(tagNode.get(0).path("plain_text").asString(""));
+          }
+
+          LOG.info("{} money entry {}", entry.isPresent() ? "Updating" : "Saving", moneyEntry);
+
+          repository.save(moneyEntry);
         }
       }
 
@@ -130,6 +150,7 @@ public class NotionSyncService {
         // To respect Notion's rate limit (3 req/sec)
         try {
           Thread.sleep(500);
+          nextCursor = response.path("next_cursor").asString(null);
         } catch (InterruptedException e) {
           Thread.currentThread().interrupt();
           throw new RuntimeException("Notion sync interrupted during pagination", e);
