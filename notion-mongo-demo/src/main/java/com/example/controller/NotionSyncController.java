@@ -18,6 +18,7 @@ public class NotionSyncController {
   // @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE + ";charset=UTF-8")
   @GetMapping
   public String syncData() {
-    return notionSyncService.syncData();
+    notionSyncService.syncData();
+    return "Sync completed successfully";
   }
 }

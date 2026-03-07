@@ -43,7 +43,7 @@ public class NotionSyncService {
     this.mapper = new ObjectMapper();
   }
 
-  public String syncData() {
+  public void syncData() {
     LOG.info("Starting Notion sync...");
     String url = notionApiUrl + databaseId + "/query";
 
@@ -53,7 +53,8 @@ public class NotionSyncService {
     // Add Incremental Sync Filter (if we have a watermark)
     MoneyEntry latestEntry = repository.findTopByOrderByLastEditedTimeDesc();
     if (latestEntry != null && latestEntry.getLastEditedTime() != null) {
-      LOG.info("Incremental sync: Fetching updates on or after " + latestEntry.getLastEditedTime());
+      LOG.info(
+          "Incremental sync: Fetching updates on or after {}", latestEntry.getLastEditedTime());
 
       ObjectNode filter = mapper.createObjectNode();
       filter.put("timestamp", "last_edited_time");
@@ -70,6 +71,7 @@ public class NotionSyncService {
     // Pagination Loop
     boolean hasMore = true;
     String nextCursor = null;
+    int totalSaved = 0;
 
     while (hasMore) {
       if (nextCursor != null && !nextCursor.equals("null")) {
@@ -104,7 +106,7 @@ public class NotionSyncService {
           // Upsert logic
           Optional<MoneyEntry> entry = repository.findByNotionId(notionId);
           MoneyEntry moneyEntry;
-          if (!entry.isPresent()) {
+          if (entry.isEmpty()) {
             moneyEntry = new MoneyEntry();
             moneyEntry.setNotionId(notionId);
           } else {
@@ -140,6 +142,7 @@ public class NotionSyncService {
           LOG.info("{} money entry {}", entry.isPresent() ? "Updating" : "Saving", moneyEntry);
 
           repository.save(moneyEntry);
+          totalSaved++;
         }
       }
 
@@ -157,6 +160,6 @@ public class NotionSyncService {
         }
       }
     }
-    return "Hello";
+    LOG.info("Sync complete. Total items processed: {}", totalSaved);
   }
 }
