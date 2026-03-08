@@ -1,24 +1,24 @@
 {
-    "properties": [
-        {
-            "name": "notion.api.url",
-            "type": "java.lang.String",
-            "description": "base url for notion api"
-        },
-        {
-            "name": "notion.api.token",
-            "type": "java.lang.String",
-            "description": "notion token"
-        },
-        {
-            "name": "notion.api.database-id",
-            "type": "java.lang.String",
-            "description": "database id"
-        },
-        {
-            "name": "notion.api.version",
-            "type": "java.lang.String",
-            "description": "api version"
-        }
-    ]
+  "properties": [
+    {
+      "name": "notion.api.url",
+      "type": "java.lang.String",
+      "description": "base url for notion api"
+    },
+    {
+      "name": "notion.api.token",
+      "type": "java.lang.String",
+      "description": "notion token"
+    },
+    {
+      "name": "notion.api.database-id",
+      "type": "java.lang.String",
+      "description": "database id"
+    },
+    {
+      "name": "notion.api.version",
+      "type": "java.lang.String",
+      "description": "api version"
+    }
+  ]
 }
