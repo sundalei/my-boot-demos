@@ -1,0 +1,14 @@
+{
+  "threshold": 5,
+  "reporters": ["html", "console"],
+  "ignore": [
+    "**/resources/**",
+    "**/test/**",
+    "**/*DTO.java",
+    "**/*Dto.java",
+    "**/*Entity.java",
+    "**/config/**"
+  ],
+  "minLines": 5,
+  "maxLines": 500
+}

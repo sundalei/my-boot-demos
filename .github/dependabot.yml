@@ -1,0 +1,39 @@
+version: 2
+updates:
+  # 1. Maven Dependency Configuration
+  - package-ecosystem: "maven"
+    # Look for pom.xml in the root directory
+    directory: "/"
+
+    # Check for updates once a week on Monday
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "04:00" # UTC time
+    cooldown:
+      default-days: 7
+
+    # Limit open PRs to prevent flooding your PR tab
+    open-pull-requests-limit: 10
+
+  # 2. Github Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "04:00"
+    cooldown:
+      default-days: 7
+    open-pull-requests-limit: 10
+
+  # 3. Docker
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "04:00"
+    cooldown:
+      default-days: 7
+    open-pull-requests-limit: 10
