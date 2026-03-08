@@ -116,7 +116,7 @@
               <exclude>**/node_modules/**</exclude>
             </excludes>
             <gson>
-              <indentSpaces>4</indentSpaces>
+              <indentSpaces>2</indentSpaces>
               <sortByKeys>false</sortByKeys>
               <escapeHtml>false</escapeHtml>
             </gson>

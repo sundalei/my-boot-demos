@@ -12,6 +12,10 @@ RUN --mount=type=cache,target=/root/.m2 \
 
 COPY notion-mongo-demo/src ./notion-mongo-demo/src
 
+FROM build AS test
+RUN --mount=type=cache,target=/root/.m2 \
+    mvn verify
+
 # Package stage
 FROM build AS package
 RUN --mount=type=cache,target=/root/.m2 \
