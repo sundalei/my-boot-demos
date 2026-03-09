@@ -29,7 +29,7 @@ updates:
 
   # 3. Docker
   - package-ecosystem: "docker"
-    directory: "/"
+    directory: "/notion-mongo-demo"
     schedule:
       interval: "weekly"
       day: "monday"

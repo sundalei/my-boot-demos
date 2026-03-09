@@ -2,3 +2,6 @@
 target/
 notion-mongo-demo/src/main/resources/application-local.yml
 .idea/
+github_conf/
+report/
+super-linter-output/
