@@ -1,4 +1,13 @@
 version: 2
+
+registries:
+  # Define it as a Docker registry, not Maven
+  dhi-docker-registry:
+    type: docker-registry
+    url: "dhi.io" # Your private Docker registry URL
+    username: ${{secrets.DOCKERHUB_USERNAME}}
+    password: ${{secrets.DOCKERHUB_TOKEN}}
+
 updates:
   # 1. Maven Dependency Configuration
   - package-ecosystem: "maven"
@@ -30,6 +39,8 @@ updates:
   # 3. Docker
   - package-ecosystem: "docker"
     directory: "/notion-mongo-demo"
+    registries:
+      - "dhi-docker-registry"
     schedule:
       interval: "weekly"
       day: "monday"
