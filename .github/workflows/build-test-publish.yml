@@ -108,7 +108,7 @@ jobs:
 
       - name: Docker metadata for final image build
         id: docker_meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ${{ secrets.DOCKERHUB_USERNAME }}/notion-mongo-demo
           flavor: |
