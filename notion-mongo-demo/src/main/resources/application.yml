@@ -1,10 +1,10 @@
 spring:
   mongodb:
-    uri: ${mongo.uri}
+    uri: ${mongo_uri}
 
 notion:
   api:
     url: https://api.notion.com/v1/databases/
-    token: ${notion.api.token}
-    database-id: ${notion.api.database-id}
+    token: ${notion_api_token}
+    database-id: ${notion_api_database_id}
     version: "2022-06-28"

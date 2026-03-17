@@ -13,19 +13,19 @@ export JAVA_TOOL_OPTIONS="${JAVA_TOOL_OPTIONS}"
 
 if [ -n "$NOTION_API_TOKEN" ]; then
 	echo "✅ NOTION_API_TOKEN is set. Adding to Java system properties."
-	export JAVA_TOOL_OPTIONS="-Dnotion.api.token=${NOTION_API_TOKEN} ${JAVA_TOOL_OPTIONS}"
+	export JAVA_TOOL_OPTIONS="-Dnotion_api_token=${NOTION_API_TOKEN} ${JAVA_TOOL_OPTIONS}"
 fi
 
 if [ -n "$NOTION_API_DATEBASE_ID" ]; then
 	echo "✅ NOTION_API_DATEBASE_ID is set. Adding to Java system properties."
 	# Note: Be cautious about logging or exposing secrets. Here we just confirm it's set.
-	export JAVA_TOOL_OPTIONS="-Dnotion.api.database-id=${NOTION_API_DATEBASE_ID} ${JAVA_TOOL_OPTIONS}"
+	export JAVA_TOOL_OPTIONS="-Dnotion_api_database_id=${NOTION_API_DATEBASE_ID} ${JAVA_TOOL_OPTIONS}"
 fi
 
 if [ -n "$MONGO_URI" ]; then
 	echo "✅ MONGO_URI is set. Adding to Java system properties."
 	# Note: Be cautious about logging or exposing secrets. Here we just confirm it's set.
-	export JAVA_TOOL_OPTIONS="-Dmongo.uri=${MONGO_URI} ${JAVA_TOOL_OPTIONS}"
+	export JAVA_TOOL_OPTIONS="-Dmongo_uri=${MONGO_URI} ${JAVA_TOOL_OPTIONS}"
 fi
 
 echo "🚀 Starting application..."
