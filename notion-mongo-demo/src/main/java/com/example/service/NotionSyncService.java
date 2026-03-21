@@ -2,10 +2,12 @@ package com.example.service;
 
 import com.example.entry.MoneyEntry;
 import com.example.repository.MoneyEntryRepository;
+import io.github.resilience4j.ratelimiter.RateLimiter;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
+import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,6 +26,7 @@ public class NotionSyncService {
   private final MoneyEntryRepository repository;
   private final RestClient restClient;
   private final ObjectMapper mapper;
+  private final RateLimiter rateLimiter;
 
   @Value("${notion.api.token}")
   private String notionToken;
@@ -37,10 +40,14 @@ public class NotionSyncService {
   @Value("${notion.api.url}")
   private String notionApiUrl;
 
-  public NotionSyncService(MoneyEntryRepository repository, RestClient.Builder restClientBuilder) {
+  public NotionSyncService(
+      MoneyEntryRepository repository,
+      RestClient.Builder restClientBuilder,
+      RateLimiter rateLimiter) {
     this.repository = repository;
     this.restClient = restClientBuilder.build();
     this.mapper = new ObjectMapper();
+    this.rateLimiter = rateLimiter;
   }
 
   public void syncData() {
@@ -80,16 +87,21 @@ public class NotionSyncService {
 
       // Execute the request using RestClient
       LOG.info("request body {}", requestBody);
-      JsonNode response =
-          restClient
-              .post()
-              .uri(url)
-              .header("Authorization", "Bearer " + notionToken)
-              .header("Notion-Version", notionVersion)
-              .contentType(MediaType.APPLICATION_JSON)
-              .body(requestBody)
-              .retrieve()
-              .body(JsonNode.class);
+
+      // Wrap the API call with RateLimiter
+      Supplier<JsonNode> apiCall =
+          () ->
+              restClient
+                  .post()
+                  .uri(url)
+                  .header("Authorization", "Bearer " + notionToken)
+                  .header("Notion-Version", notionVersion)
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .body(requestBody)
+                  .retrieve()
+                  .body(JsonNode.class);
+
+      JsonNode response = RateLimiter.decorateSupplier(rateLimiter, apiCall).get();
 
       if (response == null) {
         break;
@@ -148,17 +160,7 @@ public class NotionSyncService {
 
       // Update Pagination Flags
       hasMore = response.path("has_more").asBoolean(false);
-
-      if (hasMore) {
-        // To respect Notion's rate limit (3 req/sec)
-        try {
-          Thread.sleep(500);
-          nextCursor = response.path("next_cursor").asString(null);
-        } catch (InterruptedException e) {
-          Thread.currentThread().interrupt();
-          throw new RuntimeException("Notion sync interrupted during pagination", e);
-        }
-      }
+      nextCursor = response.path("next_cursor").asString(null);
     }
     LOG.info("Sync complete. Total items processed: {}", totalSaved);
   }
