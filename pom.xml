@@ -20,7 +20,8 @@
     <spotless.version>3.3.0</spotless.version>
     <prettier.version>3.8.1</prettier.version>
     <prettier.plugin.xml.version>3.4.2</prettier.plugin.xml.version>
-    <spring-boot.version>4.0.3</spring-boot.version>
+    <spring-boot.version>4.0.4</spring-boot.version>
+    <resilience4j.version>2.4.0</resilience4j.version>
   </properties>
 
   <dependencyManagement>
