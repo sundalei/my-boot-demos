@@ -2,12 +2,19 @@ package com.example.config;
 
 import io.github.resilience4j.ratelimiter.RateLimiter;
 import io.github.resilience4j.ratelimiter.RateLimiterConfig;
+import io.github.resilience4j.retry.Retry;
+import io.github.resilience4j.retry.RetryConfig;
 import java.time.Duration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.HttpServerErrorException;
 
 @Configuration
 public class ResilienceConfig {
+
+  private static final Logger LOG = LoggerFactory.getLogger(ResilienceConfig.class);
 
   @Bean
   RateLimiter notionRateLimiter() {
@@ -22,5 +29,31 @@ public class ResilienceConfig {
             .build();
 
     return RateLimiter.of("notionRateLimiter", config);
+  }
+
+  @Bean
+  Retry notionRetry() {
+    RetryConfig config =
+        RetryConfig.custom()
+            .maxAttempts(3)
+            .waitDuration(Duration.ofSeconds(2))
+            .failAfterMaxAttempts(true)
+            // Retry on RestClientException which may occur due to transient network issues or API
+            // errors.
+            .retryExceptions(HttpServerErrorException.class)
+            .build();
+
+    Retry retry = Retry.of("notionRetry", config);
+
+    retry
+        .getEventPublisher()
+        .onRetry(
+            event ->
+                LOG.warn(
+                    "⚠️ RETRY TRIGGERED! Attempt {}/3 due to: {}",
+                    event.getNumberOfRetryAttempts(),
+                    event.getLastThrowable().getMessage()));
+
+    return retry;
   }
 }
