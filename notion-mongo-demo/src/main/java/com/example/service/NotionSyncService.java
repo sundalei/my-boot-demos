@@ -9,8 +9,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.function.Supplier;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -20,9 +19,8 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ObjectNode;
 
 @Service
+@Slf4j
 public class NotionSyncService {
-
-  private static final Logger LOG = LoggerFactory.getLogger(NotionSyncService.class);
 
   private final MoneyEntryRepository repository;
   private final RestClient restClient;
@@ -55,7 +53,11 @@ public class NotionSyncService {
   }
 
   public void syncData() {
-    LOG.info("Starting Notion sync...");
+    log.info("Starting MoneyEntry sync...");
+    syncMoneyEntryData(databaseId);
+  }
+
+  public void syncMoneyEntryData(String databaseId) {
     String url = notionApiUrl + databaseId + "/query";
 
     ObjectNode requestBody = buildRequestBody();
@@ -81,8 +83,10 @@ public class NotionSyncService {
       hasMore = response.path("has_more").asBoolean(false);
       nextCursor = response.path("next_cursor").asString(null);
     }
-    LOG.info("Sync complete. Total items processed: {}", totalSaved);
+    log.info("Sync complete. Total items processed: {}", totalSaved);
   }
+
+  public void syncSavingData() {}
 
   private ObjectNode buildRequestBody() {
     ObjectNode requestBody = mapper.createObjectNode();
@@ -90,26 +94,26 @@ public class NotionSyncService {
     // Add Incremental Sync Filter (if we have a watermark)
     MoneyEntry latestEntry = repository.findTopByOrderByLastEditedTimeDesc();
     if (latestEntry != null && latestEntry.getLastEditedTime() != null) {
-      LOG.info(
-          "Incremental sync: Fetching updates on or after {}", latestEntry.getLastEditedTime());
+      Instant startTime = latestEntry.getLastEditedTime();
+      log.info("Incremental sync: Fetching updates on or after {}", startTime);
 
       ObjectNode filter = mapper.createObjectNode();
       filter.put("timestamp", "last_edited_time");
 
       ObjectNode lastEditedTime = mapper.createObjectNode();
-      lastEditedTime.put("after", latestEntry.getLastEditedTime().toString());
+      lastEditedTime.put("after", startTime.toString());
 
       filter.set("last_edited_time", lastEditedTime);
       requestBody.set("filter", filter);
     } else {
-      LOG.info("First run detected: Fetching ALL records.");
+      log.info("First run detected: Fetching ALL records.");
     }
 
     return requestBody;
   }
 
   private JsonNode executeApiCall(String url, ObjectNode requestBody) {
-    LOG.info("request body {}", requestBody);
+    log.info("request body {}", requestBody);
 
     // Decorate the API call with RateLimiter first and Retry second
     // to ensure we respect rate limits while also handling transient failures.
@@ -197,7 +201,7 @@ public class NotionSyncService {
       moneyEntry = existing;
     }
 
-    LOG.info("{} money entry {}", isUpdate ? "Updating" : "Saving", moneyEntry);
+    log.info("{} money entry {}", isUpdate ? "Updating" : "Saving", moneyEntry);
     repository.save(moneyEntry);
   }
 }
