@@ -23,7 +23,7 @@ if [ -n "$NOTION_API_DATEBASE_ID" ]; then
 fi
 
 if [ -n "$NOTION_API_SAVING_DATABASE_ID" ]; then
-    echo "✅ NOTION_API_SAVING_DATABASE_ID is set. Adding to Java system properties."
+	echo "✅ NOTION_API_SAVING_DATABASE_ID is set. Adding to Java system properties."
 	export JAVA_TOOL_OPTIONS="-Dnotion_api_saving_database_id=${NOTION_API_SAVING_DATABASE_ID} ${JAVA_TOOL_OPTIONS}"
 fi
 
