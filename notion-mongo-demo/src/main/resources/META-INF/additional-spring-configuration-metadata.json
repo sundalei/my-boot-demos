@@ -16,6 +16,11 @@
       "description": "database id"
     },
     {
+      "name": "notion.api.saving-database-id",
+      "type": "java.lang.String",
+      "description": "saving database id"
+    },
+    {
       "name": "notion.api.version",
       "type": "java.lang.String",
       "description": "api version"

@@ -7,4 +7,5 @@ notion:
     url: https://api.notion.com/v1/databases/
     token: ${notion_api_token}
     database-id: ${notion_api_database_id}
+    saving-database-id: ${notion_api_saving_database_id}
     version: "2022-06-28"

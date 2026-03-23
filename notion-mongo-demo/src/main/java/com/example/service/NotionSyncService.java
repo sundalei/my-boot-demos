@@ -1,9 +1,13 @@
 package com.example.service;
 
 import com.example.entry.MoneyEntry;
+import com.example.entry.Saving;
+import com.example.entry.SyncType;
 import com.example.repository.MoneyEntryRepository;
+import com.example.repository.SavingRepository;
 import io.github.resilience4j.ratelimiter.RateLimiter;
 import io.github.resilience4j.retry.Retry;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -23,6 +27,7 @@ import tools.jackson.databind.node.ObjectNode;
 public class NotionSyncService {
 
   private final MoneyEntryRepository repository;
+  private final SavingRepository savingRepository;
   private final RestClient restClient;
   private final ObjectMapper mapper;
   private final RateLimiter rateLimiter;
@@ -34,6 +39,9 @@ public class NotionSyncService {
   @Value("${notion.api.database-id}")
   private String databaseId;
 
+  @Value("${notion.api.saving-database-id}")
+  private String savingDatabaseId;
+
   @Value("${notion.api.version}")
   private String notionVersion;
 
@@ -42,74 +50,123 @@ public class NotionSyncService {
 
   public NotionSyncService(
       MoneyEntryRepository repository,
+      SavingRepository savingRepository,
       RestClient.Builder restClientBuilder,
       RateLimiter rateLimiter,
       Retry retry) {
     this.repository = repository;
+    this.savingRepository = savingRepository;
     this.restClient = restClientBuilder.build();
     this.mapper = new ObjectMapper();
     this.rateLimiter = rateLimiter;
     this.retry = retry;
   }
 
-  public void syncData() {
+  public void sync() {
     log.info("Starting MoneyEntry sync...");
-    syncMoneyEntryData(databaseId);
+    syncMoneyEntryData();
+    log.info("Starting Saving sync...");
+    syncSavingData();
   }
 
-  public void syncMoneyEntryData(String databaseId) {
-    String url = notionApiUrl + databaseId + "/query";
+  public void syncMoneyEntryData() {
+    syncData(SyncType.MONEY_ENTRY);
+  }
 
-    ObjectNode requestBody = buildRequestBody();
+  public void syncSavingData() {
+    syncData(SyncType.SAVING);
+  }
 
-    // Pagination Loop
+  private void syncData(SyncType syncType) {
+    String url = buildNotionQueryUrl(syncType);
+    ObjectNode requestBodyTemplate = buildRequestBody(syncType);
+
     boolean hasMore = true;
     String nextCursor = null;
     int totalSaved = 0;
 
     while (hasMore) {
-      if (nextCursor != null && !nextCursor.equals("null")) {
+      ObjectNode requestBody = requestBodyTemplate.deepCopy();
+
+      if (nextCursor != null && !"null".equals(nextCursor)) {
         requestBody.put("start_cursor", nextCursor);
       }
 
       JsonNode response = executeApiCall(url, requestBody);
       if (response == null) {
+        log.warn("{} sync: received null response from Notion API", syncType);
         break;
       }
 
-      totalSaved += processResponse(response);
-
-      // Update Pagination Flags
+      totalSaved += processResponse(response, syncType);
       hasMore = response.path("has_more").asBoolean(false);
       nextCursor = response.path("next_cursor").asString(null);
     }
-    log.info("Sync complete. Total items processed: {}", totalSaved);
+
+    log.info("{} sync complete. Total items processed: {}", syncType, totalSaved);
   }
 
-  public void syncSavingData() {}
+  private String buildNotionQueryUrl(SyncType syncType) {
+    String databaseIdToQuery =
+        switch (syncType) {
+          case MONEY_ENTRY -> databaseId;
+          case SAVING -> savingDatabaseId;
+          default -> throw new IllegalArgumentException("Unsupported SyncType: " + syncType);
+        };
 
-  private ObjectNode buildRequestBody() {
+    if (databaseIdToQuery == null || databaseIdToQuery.isBlank()) {
+      throw new IllegalStateException("Notion database ID is not configured for " + syncType);
+    }
+
+    String baseUrl = notionApiUrl;
+    if (baseUrl == null || baseUrl.isBlank()) {
+      throw new IllegalStateException("Notion API URL is not configured");
+    }
+
+    if (!baseUrl.endsWith("/")) {
+      baseUrl += "/";
+    }
+
+    return baseUrl + databaseIdToQuery + "/query";
+  }
+
+  private ObjectNode buildRequestBody(SyncType syncType) {
     ObjectNode requestBody = mapper.createObjectNode();
+    Instant lastEditedTime = resolveLatestEditedTime(syncType);
 
-    // Add Incremental Sync Filter (if we have a watermark)
-    MoneyEntry latestEntry = repository.findTopByOrderByLastEditedTimeDesc();
-    if (latestEntry != null && latestEntry.getLastEditedTime() != null) {
-      Instant startTime = latestEntry.getLastEditedTime();
-      log.info("Incremental sync: Fetching updates on or after {}", startTime);
-
-      ObjectNode filter = mapper.createObjectNode();
-      filter.put("timestamp", "last_edited_time");
-
-      ObjectNode lastEditedTime = mapper.createObjectNode();
-      lastEditedTime.put("after", startTime.toString());
-
-      filter.set("last_edited_time", lastEditedTime);
-      requestBody.set("filter", filter);
+    if (lastEditedTime != null) {
+      log.info("Incremental sync: Fetching updates on or after {}", lastEditedTime);
+      requestBody.set("filter", buildLastEditedTimeFilter(lastEditedTime));
     } else {
       log.info("First run detected: Fetching ALL records.");
     }
 
     return requestBody;
+  }
+
+  private Instant resolveLatestEditedTime(SyncType syncType) {
+    return switch (syncType) {
+      case MONEY_ENTRY -> {
+        MoneyEntry latestMoneyEntry = repository.findTopByOrderByLastEditedTimeDesc();
+        yield latestMoneyEntry != null ? latestMoneyEntry.getLastEditedTime() : null;
+      }
+      case SAVING -> {
+        var latestSaving = savingRepository.findTopByOrderByLastEditedTimeDesc();
+        yield latestSaving != null ? latestSaving.getLastEditedTime() : null;
+      }
+      default -> throw new IllegalArgumentException("Unsupported SyncType: " + syncType);
+    };
+  }
+
+  private ObjectNode buildLastEditedTimeFilter(Instant startTime) {
+    ObjectNode filter = mapper.createObjectNode();
+    filter.put("timestamp", "last_edited_time");
+
+    ObjectNode lastEditedTime = mapper.createObjectNode();
+    lastEditedTime.put("after", startTime.toString());
+
+    filter.set("last_edited_time", lastEditedTime);
+    return filter;
   }
 
   private JsonNode executeApiCall(String url, ObjectNode requestBody) {
@@ -135,14 +192,22 @@ public class NotionSyncService {
     return retryingRateLimitedCall.get();
   }
 
-  private int processResponse(JsonNode response) {
+  private int processResponse(JsonNode response, SyncType syncType) {
     JsonNode results = response.path("results");
     int savedCount = 0;
 
     if (results.isArray()) {
       for (JsonNode page : results) {
-        MoneyEntry moneyEntry = parseMoneyEntry(page);
-        upsertMoneyEntry(moneyEntry);
+        switch (syncType) {
+          case MONEY_ENTRY -> {
+            MoneyEntry moneyEntry = parseMoneyEntry(page);
+            upsertMoneyEntry(moneyEntry);
+          }
+          case SAVING -> {
+            Saving saving = parseSaving(page);
+            upsertSaving(saving);
+          }
+        }
         savedCount++;
       }
     }
@@ -186,6 +251,30 @@ public class NotionSyncService {
     return moneyEntry;
   }
 
+  private Saving parseSaving(JsonNode page) {
+    String notionId = page.path("id").asString();
+    JsonNode props = page.path("properties");
+
+    Saving saving = new Saving();
+    saving.setNotionId(notionId);
+
+    // Watermark timestamp
+    String editedTimeStr = page.path("last_edited_time").asString(null);
+    if (editedTimeStr != null) {
+      saving.setLastEditedTime(Instant.parse(editedTimeStr));
+    }
+
+    // Properties based on the saving database setup
+    saving.setAmount(BigDecimal.valueOf(props.path("Amount").path("number").asDouble(0.0)));
+
+    JsonNode accountNode = props.path("Account").path("rich_text");
+    if (accountNode.isArray() && !accountNode.isEmpty()) {
+      saving.setAccount(accountNode.get(0).path("plain_text").asString(""));
+    }
+
+    return saving;
+  }
+
   private void upsertMoneyEntry(MoneyEntry moneyEntry) {
     Optional<MoneyEntry> existingEntry = repository.findByNotionId(moneyEntry.getNotionId());
     boolean isUpdate = existingEntry.isPresent();
@@ -203,5 +292,22 @@ public class NotionSyncService {
 
     log.info("{} money entry {}", isUpdate ? "Updating" : "Saving", moneyEntry);
     repository.save(moneyEntry);
+  }
+
+  private void upsertSaving(Saving saving) {
+    Optional<Saving> existingSaving = savingRepository.findByNotionId(saving.getNotionId());
+    boolean isUpdate = existingSaving.isPresent();
+
+    if (isUpdate) {
+      Saving existing = existingSaving.get();
+      // Update existing saving with new data
+      existing.setLastEditedTime(saving.getLastEditedTime());
+      existing.setAmount(saving.getAmount());
+      existing.setAccount(saving.getAccount());
+      saving = existing;
+    }
+
+    log.info("{} saving {}", isUpdate ? "Updating" : "Saving", saving);
+    savingRepository.save(saving);
   }
 }

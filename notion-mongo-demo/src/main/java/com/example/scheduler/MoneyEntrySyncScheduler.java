@@ -17,6 +17,6 @@ public class MoneyEntrySyncScheduler {
 
   @Scheduled(cron = "0 0 11 * * ?", zone = "Asia/Shanghai")
   public void scheduleSync() {
-    notionSyncService.syncData();
+    notionSyncService.sync();
   }
 }

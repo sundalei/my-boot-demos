@@ -22,6 +22,11 @@ if [ -n "$NOTION_API_DATEBASE_ID" ]; then
 	export JAVA_TOOL_OPTIONS="-Dnotion_api_database_id=${NOTION_API_DATEBASE_ID} ${JAVA_TOOL_OPTIONS}"
 fi
 
+if [ -n "$NOTION_API_SAVING_DATABASE_ID" ]; then
+    echo "✅ NOTION_API_SAVING_DATABASE_ID is set. Adding to Java system properties."
+	export JAVA_TOOL_OPTIONS="-Dnotion_api_saving_database_id=${NOTION_API_SAVING_DATABASE_ID} ${JAVA_TOOL_OPTIONS}"
+fi
+
 if [ -n "$MONGO_URI" ]; then
 	echo "✅ MONGO_URI is set. Adding to Java system properties."
 	# Note: Be cautious about logging or exposing secrets. Here we just confirm it's set.
