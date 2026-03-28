@@ -1,6 +1,8 @@
 package com.example.controller;
 
+import com.example.entry.Saving;
 import com.example.service.SavingService;
+import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,7 +18,7 @@ public class SavingController {
   }
 
   @GetMapping("/all")
-  public String allSavings() {
-    return "All savings";
+  public List<Saving> allSavings() {
+    return savingService.getAllSavings();
   }
 }
