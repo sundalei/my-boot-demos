@@ -3,6 +3,7 @@
   "dockerComposeFile": "compose.yml",
   "service": "app",
   "workspaceFolder": "/workspaces",
+  "remoteUser": "vscode",
 
   "features": {
     "ghcr.io/devcontainers/features/java:1": {
@@ -11,9 +12,6 @@
     }
   },
 
-  // Note: NOTION_API_TOKEN needs to be passed securely via the DevPod CLI:
-  // devpod up <repo> --workspace-env NOTION_API_TOKEN=<token> --ide vscode
-  // Spring Boot automatically reads this uppercase environment variable directly without needing it mapped here.
   "containerEnv": {
     "mongo_uri": "mongodb://localhost:27017/analytics",
     "notion_api_database_id": "312337bc5e6d80e89831f279e1bb0925",
