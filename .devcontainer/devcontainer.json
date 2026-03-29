@@ -11,9 +11,11 @@
     }
   },
 
+  // Note: NOTION_API_TOKEN needs to be passed securely via the DevPod CLI:
+  // devpod up <repo> --workspace-env NOTION_API_TOKEN=<token> --ide vscode
+  // Spring Boot automatically reads this uppercase environment variable directly without needing it mapped here.
   "containerEnv": {
     "mongo_uri": "mongodb://localhost:27017/analytics",
-    "notion_api_token": "${localEnv:NOTION_API_TOKEN}",
     "notion_api_database_id": "312337bc5e6d80e89831f279e1bb0925",
     "notion_api_saving_database_id": "324337bc5e6d803aa761e7375c52ce64"
   },
