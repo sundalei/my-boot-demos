@@ -1,0 +1,16 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      # Mounts the entire root into the container workspace
+      - ..:/workspaces:cached
+    network_mode: service:db
+    command: /bin/sh -c "while sleep 1000; do :; done"
+
+  db:
+    image: mongo:6.0
+    restart: unless-stopped
+    ports:
+      - "27017:27017"

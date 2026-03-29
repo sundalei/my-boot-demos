@@ -1,0 +1,12 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "notion-mongo-demo-local",
+      "request": "launch",
+      "mainClass": "com.example.Application",
+      "projectName": "notion-mongo-demo"
+    }
+  ]
+}

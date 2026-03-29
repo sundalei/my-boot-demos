@@ -1,0 +1,30 @@
+{
+  "name": "Spring Boot and MongoDB Dev Container",
+  "dockerComposeFile": "compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspaces",
+
+  "features": {
+    "ghcr.io/devcontainers/features/java:1": {
+      "version": "21",
+      "installMaven": true
+    }
+  },
+
+  "containerEnv": {
+    "mongo_uri": "mongodb://localhost:27017/analytics",
+    "notion_api_token": "${localEnv:NOTION_API_TOKEN}",
+    "notion_api_database_id": "312337bc5e6d80e89831f279e1bb0925",
+    "notion_api_saving_database_id": "324337bc5e6d803aa761e7375c52ce64"
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "vscjava.vscode-java-pack",
+        "vscjava.vscode-spring-boot-pack",
+        "mongodb.mongodb-vscode"
+      ]
+    }
+  }
+}
