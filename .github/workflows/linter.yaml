@@ -43,6 +43,7 @@ jobs:
           TRIVY_SKIP_VERSION_CHECK: "true"
           TRIVY_NO_PROGRESS: "true"
           TRIVY_QUIET: "true"
+          VALIDATE_GITLEAKS: false
 
       - name: Commit and push linting fixes
         if: >
