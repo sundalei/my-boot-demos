@@ -9,3 +9,9 @@ notion:
     database-id: ${notion_api_database_id}
     saving-database-id: ${notion_api_saving_database_id}
     version: "2022-06-28"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
