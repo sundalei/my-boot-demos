@@ -15,3 +15,10 @@ management:
     web:
       exposure:
         include: "health,beans,ratelimiters,retries,ratelimiterevents,retryevents,metrics"
+
+resilience4j:
+  ratelimiter:
+    instances:
+      notionRateLimiter:
+        subscribeForEvents: true
+        eventConsumerBufferSize: 100
