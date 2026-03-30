@@ -2,8 +2,10 @@ package com.example.config;
 
 import io.github.resilience4j.ratelimiter.RateLimiter;
 import io.github.resilience4j.ratelimiter.RateLimiterConfig;
+import io.github.resilience4j.ratelimiter.RateLimiterRegistry;
 import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.retry.RetryConfig;
+import io.github.resilience4j.retry.RetryRegistry;
 import java.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +19,7 @@ public class ResilienceConfig {
   private static final Logger LOG = LoggerFactory.getLogger(ResilienceConfig.class);
 
   @Bean
-  RateLimiter notionRateLimiter() {
+  RateLimiter notionRateLimiter(RateLimiterRegistry registry) {
     // The Notion API free tier is limited to 3 requests per second, so our RateLimiter is
     // configured accordingly.
     // A timeout is set for permit waiting to handle request bursts.
@@ -28,11 +30,11 @@ public class ResilienceConfig {
             .timeoutDuration(Duration.ofSeconds(15))
             .build();
 
-    return RateLimiter.of("notionRateLimiter", config);
+    return registry.rateLimiter("notionRateLimiter", config);
   }
 
   @Bean
-  Retry notionRetry() {
+  Retry notionRetry(RetryRegistry registry) {
     RetryConfig config =
         RetryConfig.custom()
             .maxAttempts(3)
@@ -43,7 +45,7 @@ public class ResilienceConfig {
             .retryExceptions(HttpServerErrorException.class)
             .build();
 
-    Retry retry = Retry.of("notionRetry", config);
+    Retry retry = registry.retry("notionRetry", config);
 
     retry
         .getEventPublisher()
