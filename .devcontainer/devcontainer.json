@@ -23,7 +23,9 @@
       "extensions": [
         "vscjava.vscode-java-pack",
         "vscjava.vscode-spring-boot-pack",
-        "mongodb.mongodb-vscode"
+        "mongodb.mongodb-vscode",
+        "postman.postman-for-vscode",
+        "vscjava.vscode-spring-boot-dashboard"
       ]
     }
   }
