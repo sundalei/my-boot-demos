@@ -5,6 +5,7 @@ WORKDIR /app
 
 COPY pom.xml .
 COPY notion-mongo-demo/pom.xml ./notion-mongo-demo/
+COPY mongo-es-demo/pom.xml ./mongo-es-demo/
 
 # Cached layer
 RUN --mount=type=cache,target=/root/.m2 \

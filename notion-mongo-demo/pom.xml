@@ -43,11 +43,6 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>tools.jackson.core</groupId>
-      <artifactId>jackson-core</artifactId>
-      <version>3.1.1</version>
-    </dependency>
-    <dependency>
       <groupId>io.github.resilience4j</groupId>
       <artifactId>resilience4j-ratelimiter</artifactId>
       <version>${resilience4j.version}</version>
