@@ -11,6 +11,7 @@
 
   <modules>
     <module>notion-mongo-demo</module>
+    <module>mongo-es-demo</module>
   </modules>
 
   <properties>
@@ -57,9 +58,6 @@
           <version>${maven.compiler.version}</version>
           <configuration>
             <release>21</release>
-            <annotationProcessors>
-              <annotationProcessor>lombok.launch.AnnotationProcessorHider$AnnotationProcessor</annotationProcessor>
-            </annotationProcessors>
             <parameters>true</parameters>
           </configuration>
         </plugin>
