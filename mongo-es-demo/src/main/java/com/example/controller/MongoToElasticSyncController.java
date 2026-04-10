@@ -19,4 +19,9 @@ public class MongoToElasticSyncController {
     syncService.sync();
     return "sync";
   }
+
+  @GetMapping("/match-phrase-query")
+  public void matchPhraseQuery() {
+    syncService.matchPhraseQuery();
+  }
 }

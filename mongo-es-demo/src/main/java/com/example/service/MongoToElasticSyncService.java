@@ -2,10 +2,12 @@ package com.example.service;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch.cat.IndicesResponse;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
 import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import tools.jackson.databind.JsonNode;
 
 @Service
 public class MongoToElasticSyncService {
@@ -44,6 +46,31 @@ public class MongoToElasticSyncService {
               });
     } catch (IOException e) {
       log.error("Failed to fetch indices: {}", e.getMessage());
+    }
+  }
+
+  public void matchPhraseQuery() {
+    log.info("match phrase query");
+    try {
+      SearchResponse<JsonNode> response =
+          esClient.search(
+              s ->
+                  s.index("books")
+                      .query(
+                          q ->
+                              q.matchPhrase(
+                                  m ->
+                                      m.field("synopsis")
+                                          .query("must-have book for every Java programmer"))),
+              JsonNode.class);
+
+      log.info("Search result");
+      response
+          .hits()
+          .hits()
+          .forEach(hit -> log.info("Document ID: {}, Source: {}", hit.id(), hit.source()));
+    } catch (IOException e) {
+      log.error("Failed to execute match phrase query: {}", e.getMessage());
     }
   }
 }
