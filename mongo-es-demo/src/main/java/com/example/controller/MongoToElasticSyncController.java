@@ -24,4 +24,9 @@ public class MongoToElasticSyncController {
   public void matchPhraseQuery() {
     syncService.matchPhraseQuery();
   }
+
+  @GetMapping("/list-indices")
+  public void listIndices() {
+    syncService.listIndices();
+  }
 }
