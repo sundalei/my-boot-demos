@@ -11,7 +11,7 @@
     "**/*Dto.java",
     "**/*Entity.java",
     "**/config/**",
-    ".github/workflows/**"
+    "../workflows/**"
   ],
   "minLines": 5,
   "maxLines": 500
