@@ -3,4 +3,4 @@ spring:
     uris:
     - http://localhost:9200
   mongodb:
-    uri: ${mongo-sync-uri}
+    uri: ${mongo_sync_url}
