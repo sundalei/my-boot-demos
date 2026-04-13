@@ -1,13 +1,17 @@
 {
   "threshold": 5,
-  "reporters": ["html", "console"],
+  "reporters": [
+    "html",
+    "console"
+  ],
   "ignore": [
     "**/resources/**",
     "**/test/**",
     "**/*DTO.java",
     "**/*Dto.java",
     "**/*Entity.java",
-    "**/config/**"
+    "**/config/**",
+    ".github/workflows/**"
   ],
   "minLines": 5,
   "maxLines": 500
