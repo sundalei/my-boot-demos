@@ -62,6 +62,8 @@ public class MongoToElasticSyncService {
           }
         }
 
+        log.info("doc {}", doc);
+
         // Action and Metadata line
         String actionMetaData =
             String.format("{\"index\":{\"_index\":\"movies\",\"_id\":\"%s\"}}\n", id);
