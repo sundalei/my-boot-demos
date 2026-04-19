@@ -35,9 +35,6 @@ public class MongoToElasticSyncService {
     clearOldIndex();
 
     Query query = new Query();
-    // Force Mongo to return smaller batches, keeping the network active
-    query.cursorBatchSize(500);
-    query.noCursorTimeout();
     try (Stream<Document> movieStream = mongoTemplate.stream(query, Document.class, "movies")) {
 
       StringBuilder bulkNdJsonBuilder = new StringBuilder();
@@ -82,14 +79,6 @@ public class MongoToElasticSyncService {
           bulkNdJsonBuilder.setLength(0);
           currentBatchCount = 0;
           log.info("Index {} movies...", count);
-        }
-
-        try {
-          // Pause for 1.5 seconds between batches to allow ES to run Garbage Collection
-          Thread.sleep(1500);
-        } catch (InterruptedException e) {
-          Thread.currentThread().interrupt();
-          log.warn("Throttling interrupted");
         }
       }
 
