@@ -1,12 +1,5 @@
 package com.example.service;
 
-import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import co.elastic.clients.elasticsearch.cat.IndicesResponse;
-import co.elastic.clients.elasticsearch.core.BulkRequest;
-import co.elastic.clients.elasticsearch.core.BulkResponse;
-import co.elastic.clients.elasticsearch.core.SearchResponse;
-import co.elastic.clients.elasticsearch.core.bulk.BulkResponseItem;
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.stream.Stream;
 import org.bson.Document;
@@ -14,8 +7,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClient;
 import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 @Service
 public class MongoToElasticSyncService {
@@ -23,11 +21,13 @@ public class MongoToElasticSyncService {
   private static final Logger log = LoggerFactory.getLogger(MongoToElasticSyncService.class);
 
   private final MongoTemplate mongoTemplate;
-  private final ElasticsearchClient esClient;
+  private final RestClient restClient;
+  private final ObjectMapper objectMapper;
 
-  public MongoToElasticSyncService(MongoTemplate mongoTemplate, ElasticsearchClient esClient) {
+  public MongoToElasticSyncService(MongoTemplate mongoTemplate, RestClient restClient) {
     this.mongoTemplate = mongoTemplate;
-    this.esClient = esClient;
+    this.restClient = restClient;
+    this.objectMapper = new ObjectMapper();
   }
 
   public void sync() {
@@ -35,9 +35,11 @@ public class MongoToElasticSyncService {
     clearOldIndex();
 
     Query query = new Query();
+    // Force Mongo to return smaller batches, keeping the network active
+    query.cursorBatchSize(500);
     try (Stream<Document> movieStream = mongoTemplate.stream(query, Document.class, "movies")) {
 
-      BulkRequest.Builder bulkBuilder = new BulkRequest.Builder();
+      StringBuilder bulkNdJsonBuilder = new StringBuilder();
       int batchSize = 1000;
       int count = 0;
       int currentBatchCount = 0;
@@ -60,106 +62,91 @@ public class MongoToElasticSyncService {
           }
         }
 
-        bulkBuilder.operations(op -> op.index(idx -> idx.index("movies").id(id).document(doc)));
+        // Action and Metadata line
+        String actionMetaData =
+            String.format("{\"index\":{\"_index\":\"movies\",\"_id\":\"%s\"}}\n", id);
+        bulkNdJsonBuilder.append(actionMetaData);
+
+        // Document Data line
+        String docJson = objectMapper.writeValueAsString(doc);
+        bulkNdJsonBuilder.append(docJson).append("\n");
 
         count++;
         currentBatchCount++;
 
         if (currentBatchCount == batchSize) {
-          executeBulk(bulkBuilder);
-          bulkBuilder = new BulkRequest.Builder();
+          executeBulk(bulkNdJsonBuilder.toString());
+          bulkNdJsonBuilder.setLength(0);
           currentBatchCount = 0;
           log.info("Index {} movies...", count);
+        }
+
+        try {
+          // Pause for 1.5 seconds between batches to allow ES to run Garbage Collection
+          Thread.sleep(1500);
+        } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
+          log.warn("Throttling interrupted");
         }
       }
 
       if (currentBatchCount > 0) {
-        executeBulk(bulkBuilder);
+        executeBulk(bulkNdJsonBuilder.toString());
         log.info("Finished! Total indexed: {}", count);
       }
-    } catch (IOException e) {
-      log.error("Error {}", e.getMessage());
     }
   }
 
   private void clearOldIndex() {
     try {
-      boolean exists = esClient.indices().exists(ex -> ex.index("movies")).value();
-      if (exists) {
-        esClient.indices().delete(del -> del.index("movies"));
+      ResponseEntity<Void> response =
+          restClient.head().uri("/movies").retrieve().toBodilessEntity();
+
+      if (response.getStatusCode().is2xxSuccessful()) {
+        restClient.delete().uri("/movies").retrieve().toBodilessEntity();
         log.info("Old 'movies' index deleted.");
       }
-    } catch (IOException e) {
-      log.info("Failed to clear index: {}", e.getMessage());
+    } catch (HttpClientErrorException.NotFound e) {
+      log.info("Index 'movies' does not exist yet. Proceeding...");
+    } catch (Exception e) {
+      log.error("Failed to clear index: {}", e.getMessage());
     }
   }
 
-  private void executeBulk(BulkRequest.Builder bulkBuilder) throws IOException {
-    BulkResponse response = esClient.bulk(bulkBuilder.build());
+  private void executeBulk(String bulkNdJson) {
+    try {
+      ResponseEntity<JsonNode> response =
+          restClient
+              .post()
+              .uri("/_bulk")
+              .contentType(MediaType.parseMediaType("application/x-ndjson;charset=UTF-8"))
+              .body(bulkNdJson)
+              .retrieve()
+              .toEntity(JsonNode.class);
 
-    if (response.errors()) {
-      log.error("Batch contained errors! Identifying failures...");
+      JsonNode body = response.getBody();
+      if (body != null && body.has("errors") && body.get("errors").asBoolean()) {
+        log.error("Batch contained errors! Identifying failures...");
 
-      for (BulkResponseItem item : response.items()) {
-        if (item.error() != null) {
-          var error = item.error();
-          if (error != null) {
-            log.error(
-                "Failed to index document ID: {} | Error Type: {} | Reason: {}",
-                item.id(),
-                error.type(),
-                error.reason());
+        JsonNode items = body.get("items");
+        if (items != null && items.isArray()) {
+          for (JsonNode item : items) {
+            JsonNode indexAction = item.get("index");
+            if (indexAction != null && indexAction.has("error")) {
+              String failedId =
+                  indexAction.has("_id") ? indexAction.get("_id").asString() : "unknown";
+              JsonNode errorNode = indexAction.get("error");
+              log.error(
+                  "Failed to index document ID: {} | Error Type: {} | Reason: {}",
+                  failedId,
+                  errorNode.path("type").asString(),
+                  errorNode.path("reason").asString());
+            }
           }
         }
       }
-    }
-  }
-
-  public void listIndices() {
-    try {
-
-      // Check if the index exists first
-      IndicesResponse response = esClient.cat().indices();
-
-      log.info("Elasticsearch indices");
-
-      response
-          .indices()
-          .forEach(
-              record ->
-                  log.info(
-                      "Name: {} | Health: {} | Status: {} | Docs: {}",
-                      record.index(),
-                      record.health(),
-                      record.status(),
-                      record.docsCount()));
-    } catch (IOException e) {
-      log.error("Failed to fetch indices: {}", e.getMessage());
-    }
-  }
-
-  public void matchPhraseQuery() {
-    log.info("match phrase query");
-    try {
-      SearchResponse<JsonNode> response =
-          esClient.search(
-              s ->
-                  s.index("books")
-                      .query(
-                          q ->
-                              q.matchPhrase(
-                                  m ->
-                                      m.field("synopsis")
-                                          .query("must-have book for every Java programmer"))),
-              JsonNode.class);
-
-      log.info("Search result");
-      response
-          .hits()
-          .hits()
-          .forEach(hit -> log.info("Document ID: {}, Source: {}", hit.id(), hit.source()));
-    } catch (IOException e) {
-      log.error("Failed to execute match phrase query: {}", e.getMessage());
+    } catch (Exception e) {
+      log.error("Network or execution error during bulk insert: {}", e.getMessage());
     }
   }
 }

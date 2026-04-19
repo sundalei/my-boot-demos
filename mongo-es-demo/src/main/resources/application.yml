@@ -1,6 +1,8 @@
 spring:
   elasticsearch:
-    uris:
-    - http://localhost:9200
+    uris: 
+    username: 
+    password: 
   mongodb:
-    uri: ${mongo_sync_url}
+    uri: 
+  #uri: ${mongo_sync_url}

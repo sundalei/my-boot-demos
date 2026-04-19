@@ -5,3 +5,4 @@ notion-mongo-demo/src/main/resources/application-local.yml
 github_conf/
 report/
 super-linter-output/
+/mongo-es-demo/src/main/resources/application-local.yml
