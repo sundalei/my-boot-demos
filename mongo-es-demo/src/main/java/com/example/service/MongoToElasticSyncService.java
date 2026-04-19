@@ -37,6 +37,7 @@ public class MongoToElasticSyncService {
     Query query = new Query();
     // Force Mongo to return smaller batches, keeping the network active
     query.cursorBatchSize(500);
+    query.noCursorTimeout();
     try (Stream<Document> movieStream = mongoTemplate.stream(query, Document.class, "movies")) {
 
       StringBuilder bulkNdJsonBuilder = new StringBuilder();
