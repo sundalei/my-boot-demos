@@ -84,6 +84,7 @@ jobs:
     name: Publish Final Image
     runs-on: ubuntu-latest
     needs: build_and_scan
+    environment: ci
 
     permissions:
       pull-requests: write # Required to post comments on PRs
