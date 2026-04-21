@@ -1,8 +1,8 @@
 spring:
   elasticsearch:
-    uris: 
-    username: 
-    password: 
+    uris:
+    username:
+    password:
   mongodb:
-    uri: 
+    uri:
   #uri: ${mongo_sync_url}
