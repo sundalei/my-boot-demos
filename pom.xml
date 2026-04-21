@@ -23,7 +23,6 @@
     <prettier.plugin.xml.version>3.4.2</prettier.plugin.xml.version>
     <spring-boot.version>4.0.5</spring-boot.version>
     <resilience4j.version>2.4.0</resilience4j.version>
-    <jackson.version>3.1.1</jackson.version>
   </properties>
 
   <dependencyManagement>
@@ -34,11 +33,6 @@
         <version>${spring-boot.version}</version>
         <type>pom</type>
         <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>tools.jackson.core</groupId>
-        <artifactId>jackson-core</artifactId>
-        <version>${jackson.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
