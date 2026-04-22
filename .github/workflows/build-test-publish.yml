@@ -7,7 +7,15 @@ on:
       - main
     tags:
       - "v*"
+    paths:
+      - "notion-mongo-demo/**"
+      - ".github/workflows/build-test-publish.yml"
+      - ".github/workflows/template-build-test-publish.yml"
   pull_request:
+    paths:
+      - "notion-mongo-demo/**"
+      - ".github/workflows/build-test-publish.yml"
+      - ".github/workflows/template-build-test-publish.yml"
 
 permissions: {}
 

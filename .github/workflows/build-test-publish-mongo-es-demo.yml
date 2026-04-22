@@ -7,7 +7,15 @@ on:
       - main
     tags:
       - "v*"
+    paths:
+      - "mongo-es-demo/**"
+      - ".github/workflows/build-test-publish-mongo-es-demo.yml"
+      - ".github/workflows/template-build-test-publish.yml"
   pull_request:
+    paths:
+      - "mongo-es-demo/**"
+      - ".github/workflows/build-test-publish-mongo-es-demo.yml"
+      - ".github/workflows/template-build-test-publish.yml"
 
 permissions: {}
 
