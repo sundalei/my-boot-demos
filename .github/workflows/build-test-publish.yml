@@ -5,7 +5,6 @@ on:
   push:
     branches:
       - main
-      - features/refactor-pipeline # Temporary for testing
     tags:
       - "v*"
   pull_request:
