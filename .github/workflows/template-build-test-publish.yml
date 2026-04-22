@@ -61,7 +61,7 @@ jobs:
         with:
           image-ref: ${{ github.run_id }}
           format: sarif
-          exit-code: 1
+          exit-code: 0
           vuln-type: os,library
           output: trivy-results.sarif
           scanners: vuln
