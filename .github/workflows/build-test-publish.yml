@@ -17,7 +17,9 @@ jobs:
     uses: ./.github/workflows/template-build-test-publish.yml
     with:
       module: "notion-mongo-demo"
-    secrets: inherit
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
     permissions:
       security-events: write # Required to upload SARIF reports
       pull-requests: write # Required to post comments on PRs
