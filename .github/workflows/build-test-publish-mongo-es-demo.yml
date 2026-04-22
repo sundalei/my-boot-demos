@@ -16,6 +16,7 @@ jobs:
     uses: ./.github/workflows/template-build-test-publish.yml
     with:
       module: "mongo-es-demo"
+    secrets: inherit
     permissions:
       security-events: write # Required to upload SARIF reports
       pull-requests: write # Required to post comments on PRs
