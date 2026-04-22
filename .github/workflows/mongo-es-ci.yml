@@ -1,5 +1,5 @@
 ---
-name: "Build, Test, and Publish"
+name: "Mongo ES CI/CD"
 
 on:
   push:
@@ -8,13 +8,13 @@ on:
     tags:
       - "v*"
     paths:
-      - "notion-mongo-demo/**"
-      - ".github/workflows/build-test-publish.yml"
+      - "mongo-es-demo/**"
+      - ".github/workflows/mongo-es-ci.yml"
       - ".github/workflows/template-build-test-publish.yml"
   pull_request:
     paths:
-      - "notion-mongo-demo/**"
-      - ".github/workflows/build-test-publish.yml"
+      - "mongo-es-demo/**"
+      - ".github/workflows/mongo-es-ci.yml"
       - ".github/workflows/template-build-test-publish.yml"
 
 permissions: {}
@@ -23,7 +23,7 @@ jobs:
   call-shared-workflow:
     uses: ./.github/workflows/template-build-test-publish.yml
     with:
-      module: "notion-mongo-demo"
+      module: "mongo-es-demo"
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
