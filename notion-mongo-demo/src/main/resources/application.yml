@@ -1,13 +1,13 @@
 spring:
   mongodb:
-    uri: ${mongo_uri}
+    uri: ${SPRING_MONGODB_URI}
 
 notion:
   api:
     url: https://api.notion.com/v1/databases/
-    token: ${notion_api_token}
-    database-id: ${notion_api_database_id}
-    saving-database-id: ${notion_api_saving_database_id}
+    token: ${NOTION_API_TOKEN:}
+    database-id: ${NOTION_API_DATABASE_ID}
+    saving-database-id: ${NOTION_API_SAVING_DATABASE_ID}
     version: "2022-06-28"
 
 management:
