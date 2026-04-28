@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 # Build stage
-FROM dhi.io/maven:3.9-jdk25-dev AS build
+FROM maven:3.9 AS build
 WORKDIR /app
 
 COPY pom.xml .
