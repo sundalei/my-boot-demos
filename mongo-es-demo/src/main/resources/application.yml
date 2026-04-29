@@ -1,8 +1,24 @@
+logging:
+  level:
+    org.springframework.vault: debug
+    org.springframework.cloud.vault: debug
 spring:
+  application:
+    name: mongo-es-demo
+  config:
+    import: vault://
+  cloud:
+    vault:
+      uri: ${spring.cloud.vault.uri}
+      token: ${spring.cloud.vault.token}
+      scheme: http
+      kv:
+        enabled: true
+        backend: secret
+        default-context: ${spring.application.name}
   elasticsearch:
-    uris:
-    username:
-    password:
+    uris: ${spring.elasticsearch.uris}
+    username: elastic
+    password: ${spring.elasticsearch.password}
   mongodb:
-    uri:
-  #uri: ${mongo_sync_url}
+    uri: ${spring.mongodb.uri}
