@@ -7,7 +7,7 @@ WORKDIR /app
 COPY pom.xml .
 
 # Copy all subproject pom.xml files (automatically includes new projects)
-COPY */pom.xml ./
+COPY */pom.xml ./ --parents
 
 # Cached layer
 RUN --mount=type=cache,target=/root/.m2 \
@@ -29,14 +29,14 @@ FROM eclipse-temurin:21-jre-jammy AS final
 
 RUN addgroup --system spring && adduser --system --ingroup spring springuser
 
-# Copy the entrypoint script from the project directory
+# Copy the entrypoint script from the project-a directory
 COPY --chown=springuser:spring notion-mongo-demo/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
 USER springuser
 WORKDIR /app
 
-# Copy the JAR from the project target directory
+# Copy the JAR from the project-a target directory
 COPY --from=package --chown=springuser:spring /app/notion-mongo-demo/target/*.jar app.jar
 
 EXPOSE 8080

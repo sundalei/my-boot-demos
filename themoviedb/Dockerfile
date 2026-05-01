@@ -7,7 +7,7 @@ WORKDIR /app
 COPY pom.xml .
 
 # Copy all subproject pom.xml files (automatically includes new projects)
-COPY */pom.xml ./
+COPY */pom.xml ./ --parents
 
 # Cached layer
 RUN --mount=type=cache,target=/root/.m2 \
