@@ -12,6 +12,7 @@
   <modules>
     <module>notion-mongo-demo</module>
     <module>mongo-es-demo</module>
+    <module>themoviedb</module>
   </modules>
 
   <properties>

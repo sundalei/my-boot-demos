@@ -11,9 +11,9 @@ COPY */pom.xml ./
 
 # Cached layer
 RUN --mount=type=cache,target=/root/.m2 \
-    mvn -B dependency:go-offline -pl mongo-es-demo -am
+    mvn -B dependency:go-offline -pl themoviedb -am
 
-COPY mongo-es-demo/src ./mongo-es-demo/src
+COPY themoviedb/src ./themoviedb/src
 
 FROM build AS test
 RUN --mount=type=cache,target=/root/.m2 \
@@ -22,7 +22,7 @@ RUN --mount=type=cache,target=/root/.m2 \
 # Package stage
 FROM build AS package
 RUN --mount=type=cache,target=/root/.m2 \
-    mvn -B package -pl mongo-es-demo -am -DskipTests
+    mvn -B package -pl themoviedb -am -DskipTests
 
 # --- FINAL RUNTIME STAGE ---
 FROM eclipse-temurin:21-jre-jammy AS final
@@ -30,19 +30,19 @@ FROM eclipse-temurin:21-jre-jammy AS final
 RUN addgroup --system spring && adduser --system --ingroup spring springuser
 
 # Copy the entrypoint script from the project directory
-COPY --chown=springuser:spring mongo-es-demo/entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY --chown=springuser:spring themoviedb/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
 USER springuser
 WORKDIR /app
 
 # Copy the JAR from the project target directory
-COPY --from=package --chown=springuser:spring /app/mongo-es-demo/target/*.jar app.jar
+COPY --from=package --chown=springuser:spring /app/themoviedb/target/*.jar app.jar
 
 EXPOSE 8080
 
 HEALTHCHECK --interval=30s --timeout=5s \
-  CMD curl -f http://localhost:8080/ping/hello || exit 1
+  CMD curl -f http://localhost:8080/hello || exit 1
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
