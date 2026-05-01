@@ -12,7 +12,8 @@
     "**/*Entity.java",
     "**/config/**",
     "**/.github/workflows/**/*.yml",
-    "**/Dockerfile"
+    "**/Dockerfile",
+    "**/pom.xml"
   ],
   "minLines": 5,
   "maxLines": 500
