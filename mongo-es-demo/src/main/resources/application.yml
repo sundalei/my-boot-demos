@@ -1,7 +1,8 @@
 logging:
   level:
-    org.springframework.vault: debug
-    org.springframework.cloud.vault: debug
+    '[org.springframework.vault]': debug
+    '[org.springframework.cloud.vault]': debug
+
 spring:
   application:
     name: mongo-es-demo
@@ -16,9 +17,17 @@ spring:
         enabled: true
         backend: secret
         default-context: ${spring.application.name}
-  elasticsearch:
-    uris: ${spring.elasticsearch.uris}
-    username: elastic
-    password: ${spring.elasticsearch.password}
   mongodb:
     uri: ${spring.mongodb.uri}
+  ssl:
+    bundle:
+      pem:
+        elastic-client:
+          truststore:
+            certificate: base64:${http_ca_crt_base64}
+
+# Elasticsearch RestClient configuration
+elasticsearch:
+  base-url: 
+  username: elastic
+  password: 

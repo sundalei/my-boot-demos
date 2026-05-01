@@ -1,6 +1,9 @@
 {
   "threshold": 5,
-  "reporters": ["html", "console"],
+  "reporters": [
+    "html",
+    "console"
+  ],
   "ignore": [
     "**/resources/**",
     "**/test/**",
