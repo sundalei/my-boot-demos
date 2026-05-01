@@ -1,0 +1,13 @@
+{
+  "printWidth": 80,
+  "singleQuote": false,
+  "trailingComma": "none",
+  "overrides": [
+    {
+      "files": ["**/*.json"],
+      "options": {
+        "printWidth": 60
+      }
+    }
+  ]
+}
