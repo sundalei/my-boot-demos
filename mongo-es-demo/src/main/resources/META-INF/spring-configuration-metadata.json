@@ -1,0 +1,21 @@
+{
+  "properties": [
+    {
+      "name": "elasticsearch.base-url",
+      "type": "java.lang.String",
+      "description": "Base URL for Elasticsearch cluster",
+      "defaultValue": "https://localhost:9200"
+    },
+    {
+      "name": "elasticsearch.username",
+      "type": "java.lang.String",
+      "description": "Elasticsearch username",
+      "defaultValue": "elastic"
+    },
+    {
+      "name": "elasticsearch.password",
+      "type": "java.lang.String",
+      "description": "Elasticsearch password (store in Vault)"
+    }
+  ]
+}

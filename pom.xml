@@ -126,6 +126,7 @@
               <exclude>**/target/**</exclude>
               <exclude>**/node_modules/**</exclude>
               <exclude>**/.devcontainer/*.json</exclude>
+              <exclude>**/.github/linters/*.json</exclude>
             </excludes>
             <gson>
               <indentSpaces>2</indentSpaces>

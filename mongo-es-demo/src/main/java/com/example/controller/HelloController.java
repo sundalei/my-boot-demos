@@ -16,13 +16,10 @@ public class HelloController {
     return "Hello";
   }
 
-  @Value("${my.super.secret}")
-  private String mySecret;
+  @Value("${elasticsearch.base-url}")
+  private String elasticsearchBaseUrl;
 
-  @Value("${spring.elasticsearch.uris}")
-  private String elasticsearchUris;
-
-  @Value("${spring.elasticsearch.password}")
+  @Value("${elasticsearch.password}")
   private String elasticsearchPassword;
 
   @Value("${spring.mongodb.uri}")
@@ -33,7 +30,7 @@ public class HelloController {
     Map<String, Object> secrets = new HashMap<>();
 
     Map<String, String> elasticsearch = new HashMap<>();
-    elasticsearch.put("uris", elasticsearchUris);
+    elasticsearch.put("base-url", elasticsearchBaseUrl);
     elasticsearch.put("password", elasticsearchPassword);
 
     Map<String, String> mongodb = new HashMap<>();
@@ -41,7 +38,6 @@ public class HelloController {
 
     secrets.put("elasticsearch", elasticsearch);
     secrets.put("mongodb", mongodb);
-    secrets.put("my.super.secret", mySecret);
 
     return secrets;
   }
