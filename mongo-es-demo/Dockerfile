@@ -17,7 +17,7 @@ COPY mongo-es-demo/src ./mongo-es-demo/src
 
 FROM build AS test
 RUN --mount=type=cache,target=/root/.m2 \
-    mvn verify
+    mvn verify -pl mongo-es-demo -am
 
 # Package stage
 FROM build AS package

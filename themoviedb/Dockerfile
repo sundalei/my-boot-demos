@@ -17,7 +17,7 @@ COPY themoviedb/src ./themoviedb/src
 
 FROM build AS test
 RUN --mount=type=cache,target=/root/.m2 \
-    mvn verify
+    mvn verify -pl themoviedb -am
 
 # Package stage
 FROM build AS package

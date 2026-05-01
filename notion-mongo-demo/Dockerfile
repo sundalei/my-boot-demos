@@ -17,7 +17,7 @@ COPY notion-mongo-demo/src ./notion-mongo-demo/src
 
 FROM build AS test
 RUN --mount=type=cache,target=/root/.m2 \
-    mvn verify
+    mvn verify -pl notion-mongo-demo -am
 
 # Package stage
 FROM build AS package
