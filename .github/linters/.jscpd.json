@@ -8,7 +8,9 @@
     "**/*Dto.java",
     "**/*Entity.java",
     "**/config/**",
-    "**/.github/workflows/**/*.yml"
+    "**/.github/workflows/**/*.yml",
+    "**/Dockerfile",
+    "**/pom.xml"
   ],
   "minLines": 5,
   "maxLines": 500

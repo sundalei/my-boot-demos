@@ -3,9 +3,11 @@
 FROM maven:3.9 AS build
 WORKDIR /app
 
+# Copy root pom.xml
 COPY pom.xml .
-COPY notion-mongo-demo/pom.xml ./notion-mongo-demo/
-COPY mongo-es-demo/pom.xml ./mongo-es-demo/
+
+# Copy all subproject pom.xml files (automatically includes new projects)
+COPY --parents */pom.xml ./
 
 # Cached layer
 RUN --mount=type=cache,target=/root/.m2 \
@@ -15,7 +17,7 @@ COPY notion-mongo-demo/src ./notion-mongo-demo/src
 
 FROM build AS test
 RUN --mount=type=cache,target=/root/.m2 \
-    mvn verify
+    mvn verify -pl notion-mongo-demo -am
 
 # Package stage
 FROM build AS package
