@@ -38,6 +38,7 @@ jobs:
           VALIDATE_NATURAL_LANGUAGE: false
           FIX_MARKDOWN_PRETTIER: true
           FIX_YAML_PRETTIER: true
+          FIX_JSON_PRETTIER: true
           FIX_BIOME_FORMAT: true
           TRIVY_SKIP_VERSION_CHECK: "true"
           TRIVY_NO_PROGRESS: "true"
