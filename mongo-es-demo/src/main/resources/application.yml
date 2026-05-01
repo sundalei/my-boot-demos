@@ -1,7 +1,7 @@
 logging:
   level:
-    '[org.springframework.vault]': debug
-    '[org.springframework.cloud.vault]': debug
+    "[org.springframework.vault]": debug
+    "[org.springframework.cloud.vault]": debug
 
 spring:
   application:
@@ -28,6 +28,6 @@ spring:
 
 # Elasticsearch RestClient configuration
 elasticsearch:
-  base-url: 
+  base-url:
   username: elastic
-  password: 
+  password:
