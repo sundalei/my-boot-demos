@@ -1,5 +1,13 @@
 version: 2
 
+# Define registries
+registries:
+  dockerhub:
+    type: docker-registry
+    url: registry.hub.docker.com
+    username: ${{secrets.DOCKERHUB_USERNAME}}
+    password: ${{secrets.DOCKERHUB_TOKEN}}
+
 updates:
   # 1. Maven Dependency Configuration
   - package-ecosystem: "maven"
@@ -30,7 +38,7 @@ updates:
 
   # 3. Docker
   - package-ecosystem: "docker"
-    directory: "/notion-mongo-demo"
+    directory: "/"
     schedule:
       interval: "weekly"
       day: "monday"
@@ -38,13 +46,5 @@ updates:
     cooldown:
       default-days: 7
     open-pull-requests-limit: 10
-
-  - package-ecosystem: "docker"
-    directory: "/mongo-es-demo"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "04:00"
-    cooldown:
-      default-days: 7
-    open-pull-requests-limit: 10
+    registries:
+      - dockerhub

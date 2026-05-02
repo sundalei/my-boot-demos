@@ -36,9 +36,11 @@ jobs:
         uses: docker/build-push-action@v7
         with:
           context: .
-          file: "${{ inputs.module }}/Dockerfile"
+          file: "./Dockerfile"
           push: false
           load: true # Load the image into the local Docker daemon
+          build-args: |
+            MODULE_NAME=${{ inputs.module }}
           tags: ${{ github.run_id }}
           target: test
           cache-from: type=gha
@@ -127,7 +129,9 @@ jobs:
         uses: docker/build-push-action@v7
         with:
           context: .
-          file: "${{ inputs.module }}/Dockerfile"
+          file: "./Dockerfile"
+          build-args: |
+            MODULE_NAME=${{ inputs.module }}
           push: true
           tags: ${{ steps.docker_meta.outputs.tags }}
           labels: ${{ steps.docker_meta.outputs.labels }}

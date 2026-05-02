@@ -3,6 +3,9 @@
 FROM maven:3.9 AS build
 WORKDIR /app
 
+# Define module name
+ARG MODULE_NAME
+
 # Copy root pom.xml
 COPY pom.xml .
 
@@ -11,38 +14,40 @@ COPY --parents */pom.xml ./
 
 # Cached layer
 RUN --mount=type=cache,target=/root/.m2 \
-    mvn -B dependency:go-offline -pl mongo-es-demo -am
+    mvn -B dependency:go-offline -pl ${MODULE_NAME} -am
 
-COPY mongo-es-demo/src ./mongo-es-demo/src
+COPY ${MODULE_NAME}/src ./${MODULE_NAME}/src
 
 FROM build AS test
+ARG MODULE_NAME
 RUN --mount=type=cache,target=/root/.m2 \
-    mvn verify -pl mongo-es-demo -am
+    mvn verify -pl ${MODULE_NAME} -am
 
 # Package stage
 FROM build AS package
+ARG MODULE_NAME
 RUN --mount=type=cache,target=/root/.m2 \
-    mvn -B package -pl mongo-es-demo -am -DskipTests
-    
+    mvn -B package -pl ${MODULE_NAME} -am -DskipTests
+
 # --- FINAL RUNTIME STAGE ---
 FROM eclipse-temurin:21-jre-jammy AS final
-
+ARG MODULE_NAME
 RUN addgroup --system spring && adduser --system --ingroup spring springuser
 
-# Copy the entrypoint script from the project-a directory
-COPY --chown=springuser:spring mongo-es-demo/entrypoint.sh /usr/local/bin/entrypoint.sh
+# Copy the entrypoint script from the project directory
+COPY --chown=springuser:spring ${MODULE_NAME}/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
 USER springuser
 WORKDIR /app
 
-# Copy the JAR from the project-a target directory
-COPY --from=package --chown=springuser:spring /app/mongo-es-demo/target/*.jar app.jar
+# Copy the JAR from the project target directory
+COPY --from=package --chown=springuser:spring /app/${MODULE_NAME}/target/*.jar app.jar  
 
 EXPOSE 8080
 
 HEALTHCHECK --interval=30s --timeout=5s \
-  CMD curl -f http://localhost:8080/ping/hello || exit 1
+  CMD curl -f http://localhost:8080/hello || exit 1
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
