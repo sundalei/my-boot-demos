@@ -19,17 +19,19 @@ RUN --mount=type=cache,target=/root/.m2 \
 COPY ${MODULE_NAME}/src ./${MODULE_NAME}/src
 
 FROM build AS test
+ARG MODULE_NAME
 RUN --mount=type=cache,target=/root/.m2 \
     mvn verify -pl ${MODULE_NAME} -am
 
 # Package stage
 FROM build AS package
+ARG MODULE_NAME
 RUN --mount=type=cache,target=/root/.m2 \
     mvn -B package -pl ${MODULE_NAME} -am -DskipTests
 
 # --- FINAL RUNTIME STAGE ---
 FROM eclipse-temurin:21-jre-jammy AS final
-
+ARG MODULE_NAME
 RUN addgroup --system spring && adduser --system --ingroup spring springuser
 
 # Copy the entrypoint script from the project directory
