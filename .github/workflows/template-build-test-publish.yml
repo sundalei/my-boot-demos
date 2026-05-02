@@ -47,7 +47,7 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Generate Trivy Vulnerability Report
-        uses: aquasecurity/trivy-action@0.35.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: ${{ github.run_id }}
           format: json
@@ -64,7 +64,7 @@ jobs:
           retention-days: 30
 
       - name: Run Trivy for CRITICAL CVEs
-        uses: aquasecurity/trivy-action@0.35.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: ${{ github.run_id }}
           format: sarif
