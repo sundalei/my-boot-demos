@@ -31,3 +31,8 @@ elasticsearch:
   base-url:
   username: elastic
   password:
+
+management:
+  health:
+    mongodb:
+      enabled: false
