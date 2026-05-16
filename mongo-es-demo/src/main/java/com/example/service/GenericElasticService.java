@@ -16,9 +16,17 @@ public class GenericElasticService {
   }
 
   public Map<String, Object> index(String indexName, Map<String, Object> payload) {
+    return callElasticRequest("/" + indexName, payload);
+  }
+
+  public Map<String, Object> save(String indexName, int id, Map<String, Object> payload) {
+    return callElasticRequest("/" + indexName + "/_doc/" + id, payload);
+  }
+
+  private Map<String, Object> callElasticRequest(String url, Map<String, Object> payload) {
     return restClient
         .put()
-        .uri("/" + indexName)
+        .uri(url)
         .contentType(MediaType.APPLICATION_JSON)
         .body(payload)
         .retrieve()

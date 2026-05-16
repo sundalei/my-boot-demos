@@ -23,4 +23,12 @@ public class GenericElasticController {
       @PathVariable String indexName, @RequestBody Map<String, Object> payload) {
     return elasticService.index(indexName, payload);
   }
+
+  @PutMapping("/{indexName}/{id}")
+  public Map<String, Object> save(
+      @PathVariable String indexName,
+      @PathVariable int id,
+      @RequestBody Map<String, Object> payload) {
+    return elasticService.save(indexName, id, payload);
+  }
 }
