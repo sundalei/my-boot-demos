@@ -30,7 +30,7 @@ RUN --mount=type=cache,target=/root/.m2 \
     mvn -B package -pl ${MODULE_NAME} -am -DskipTests
 
 # --- FINAL RUNTIME STAGE ---
-FROM eclipse-temurin:21-jre-jammy AS final
+FROM eclipse-temurin:25-jre-jammy AS final
 ARG MODULE_NAME
 RUN addgroup --system spring && adduser --system --ingroup spring springuser
 
