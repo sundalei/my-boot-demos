@@ -33,7 +33,7 @@ jobs:
         uses: docker/setup-buildx-action@v4
 
       - name: Build image for testing and scanning
-        uses: docker/build-push-action@v7
+        uses: docker/build-push-action@v7.1.0
         with:
           context: .
           file: "./Dockerfile"
@@ -126,7 +126,7 @@ jobs:
             type=semver,pattern={{version}}
 
       - name: Docker build and push to Docker Hub
-        uses: docker/build-push-action@v7
+        uses: docker/build-push-action@v7.1.0
         with:
           context: .
           file: "./Dockerfile"
