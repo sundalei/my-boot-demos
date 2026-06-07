@@ -1,5 +1,6 @@
 package com.example.controller;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
@@ -29,13 +30,18 @@ public class EntraIdController {
   public ResponseEntity<Map<String, String>> getEnrichedClaims(
       @RequestHeader(value = "OIDC_CLAIM_preferred_username", defaultValue = "Not Provided")
           String username,
-      @RequestHeader(value = "OIDC_CLAIM_name", defaultValue = "Not Provided") String name,
+      @RequestHeader(value = "OIDC_CLAIM_name", defaultValue = "Not Provided") String rawName,
       @RequestHeader(value = "OIDC_CLAIM_email", defaultValue = "Not Provided") String email) {
+
+    String decodedName =
+        "Not Provided".equals(rawName)
+            ? rawName
+            : new String(rawName.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
 
     Map<String, String> userProfile =
         Map.of(
             "username", username,
-            "name", name,
+            "name", decodedName,
             "email", email);
 
     return ResponseEntity.ok(userProfile);
