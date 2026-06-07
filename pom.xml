@@ -13,6 +13,8 @@
     <module>notion-mongo-demo</module>
     <module>mongo-es-demo</module>
     <module>themoviedb</module>
+    <module>starbucks-cn-gateway</module>
+    <module>entra-id-backend</module>
   </modules>
 
   <properties>
