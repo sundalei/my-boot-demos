@@ -2,6 +2,7 @@ package com.example.controller;
 
 import com.example.service.GenericElasticService;
 import java.util.Map;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,5 +31,16 @@ public class GenericElasticController {
       @PathVariable int id,
       @RequestBody Map<String, Object> payload) {
     return elasticService.save(indexName, id, payload);
+  }
+
+  /**
+   * Bulk Indexing the documents in the file which is in resources folder.
+   *
+   * @param file
+   * @return
+   */
+  @GetMapping("/bulk/{file}")
+  public String bulkIndexing(@PathVariable String file) {
+    return "hello";
   }
 }
