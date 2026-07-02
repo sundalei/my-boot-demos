@@ -19,6 +19,8 @@ jobs:
       contents: write
       # To write Super-linter status checks
       statuses: write
+      issues: write
+      pull-requests: write
 
     steps:
       - name: Checkout code
@@ -27,6 +29,22 @@ jobs:
           # super-linter needs the full git history to get the
           # list of files that changed across commits
           fetch-depth: 0
+
+      # Pre-populate Maven cache for Trivy
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven # caches ~/.m2/repository keyed on pom.xml hashes
+
+      - name: Resolve Maven dependencies
+        run: mvn -B -ntp dependency:resolve # in batch mode and disables transfer progress bar
+
+      - name: Expose Maven repo to super-linter container
+        run: |
+          mkdir -p /home/runner/work/_temp/_github_home
+          cp -r "$HOME/.m2" /home/runner/work/_temp/_github_home/
 
       - name: Super-linter
         uses: super-linter/super-linter@v8.7.0
