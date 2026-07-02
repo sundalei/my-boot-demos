@@ -37,7 +37,7 @@ jobs:
           cache: maven # caches ~/.m2/repository keyed on pom.xml hashes
 
       - name: Resolve Maven dependencies
-        run: mvn -B -ntp dependency:go-offline # in batch mode and disables transfer progress bar
+        run: mvn -B -ntp dependency:resolve # in batch mode and disables transfer progress bar
 
       - name: Expose Maven repo to super-linter container
         run: |
