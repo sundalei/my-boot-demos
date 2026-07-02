@@ -28,6 +28,14 @@ jobs:
           # list of files that changed across commits
           fetch-depth: 0
 
+      # Pre-populate Maven cache for Trivy
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven # caches ~/.m2/repository keyed on pom.xml hashes
+
       - name: Super-linter
         uses: super-linter/super-linter@v8.7.0
         env:
