@@ -19,6 +19,8 @@ jobs:
       contents: write
       # To write Super-linter status checks
       statuses: write
+      issues: write
+      pull-requests: write
 
     steps:
       - name: Checkout code
