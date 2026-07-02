@@ -39,6 +39,11 @@ jobs:
       - name: Resolve Maven dependencies
         run: mvn -B -ntp dependency:go-offline # in batch mode and disables transfer progress bar
 
+      - name: Expose Maven repo to super-linter container
+        run: |
+          mkdir -p /home/runner/work/_temp/_github_home
+          cp -r "$HOME/.m2" /home/runner/work/_temp/_github_home/
+
       - name: Super-linter
         uses: super-linter/super-linter@v8.7.0
         env:
