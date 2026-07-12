@@ -15,6 +15,7 @@
     <module>themoviedb</module>
     <module>starbucks-cn-gateway</module>
     <module>entra-id-backend</module>
+    <module>entra-gateway-demo</module>
   </modules>
 
   <properties>
