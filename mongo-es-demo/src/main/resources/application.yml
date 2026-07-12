@@ -12,25 +12,22 @@ spring:
     vault:
       uri: ${spring.cloud.vault.uri}
       token: ${spring.cloud.vault.token}
-      scheme: http
+      scheme: https
       kv:
         enabled: true
         backend: secret
         default-context: ${spring.application.name}
   mongodb:
     uri: ${spring.mongodb.uri}
-  ssl:
-    bundle:
-      pem:
-        elastic-client:
-          truststore:
-            certificate: base64:${http_ca_crt_base64}
 
 # Elasticsearch RestClient configuration
 elasticsearch:
   base-url:
   username: elastic
   password:
+  # ssl-bundle: elastic-client   # set only for a self-signed ES cert (needs the
+  #                              # spring.ssl.bundle.pem.elastic-client block + http_ca_crt_base64)
+  ssl-bundle:
 
 management:
   health:

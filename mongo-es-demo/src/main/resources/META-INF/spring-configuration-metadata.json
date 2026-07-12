@@ -16,6 +16,11 @@
       "name": "elasticsearch.password",
       "type": "java.lang.String",
       "description": "Elasticsearch password (store in Vault)"
+    },
+    {
+      "name": "elasticsearch.ssl-bundle",
+      "type": "java.lang.String",
+      "description": "Name of the SSL trust bundle used to verify the Elasticsearch server certificate. Set to a bundle name (e.g. 'elastic-client') when Elasticsearch presents a self-signed certificate that must be trusted; leave empty to use the JVM default truststore (e.g. for a publicly-trusted / Let's Encrypt certificate)."
     }
   ]
 }

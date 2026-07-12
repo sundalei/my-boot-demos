@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.restclient.autoconfigure.RestClientSsl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClient;
 
 @Configuration
@@ -19,14 +20,19 @@ public class ElasticConfig {
   @Value("${elasticsearch.password}")
   private String password;
 
+  @Value("${elasticsearch.ssl-bundle:}")
+  private String sslBundle;
+
   @Bean
   public RestClient elasticsearchRestClient(
       RestClient.Builder restClientBuilder, RestClientSsl ssl) {
-    return restClientBuilder
+    restClientBuilder
         .baseUrl(elasticsearchBaseUrl)
-        .defaultHeader("Authorization", createAuthHeader())
-        .apply(ssl.fromBundle("elastic-client"))
-        .build();
+        .defaultHeader("Authorization", createAuthHeader());
+    if (StringUtils.hasText(sslBundle)) {
+      restClientBuilder.apply(ssl.fromBundle(sslBundle)); // self-signed: trust custom CA
+    }
+    return restClientBuilder.build();
   }
 
   private String createAuthHeader() {
