@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
@@ -21,7 +22,27 @@ public class IdentityHeaderFilter implements GlobalFilter, Ordered {
   @Override
   public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
     LOG.info("IdentityHeaderFilter invocation start");
-    return chain.filter(exchange);
+
+    return exchange
+        .getPrincipal()
+        .doOnNext(
+            principal ->
+                LOG.info(
+                    "1) principal: class={}, name={}",
+                    principal.getClass().getName(),
+                    principal.getName()))
+        .filter(OAuth2AuthenticationToken.class::isInstance)
+        .doOnNext(principal -> LOG.info("2) passed OAuth2AuthenticationToken filter"))
+        .cast(OAuth2AuthenticationToken.class)
+        .doOnNext(
+            token ->
+                LOG.info(
+                    "3) clientRegistrationId={}, authorities={}, principal={}, principal class={}",
+                    token.getAuthorizedClientRegistrationId(),
+                    token.getAuthorities(),
+                    token.getPrincipal(),
+                    token.getPrincipal().getClass().getName()))
+        .then(chain.filter(exchange));
   }
 
   @Override
