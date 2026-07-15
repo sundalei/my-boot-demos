@@ -6,6 +6,7 @@ import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
@@ -42,7 +43,21 @@ public class IdentityHeaderFilter implements GlobalFilter, Ordered {
                     token.getAuthorities(),
                     token.getPrincipal(),
                     token.getPrincipal().getClass().getName()))
+        .map(token -> (OidcUser) token.getPrincipal())
+        .doOnNext(
+            user ->
+                LOG.info(
+                    "4) oidc: sub={}, email={}, preferredUsername={}",
+                    user.getSubject(),
+                    user.getEmail(),
+                    user.getPreferredUsername()))
+        .map(oidcUser -> mutateWithIdentity(exchange, oidcUser))
         .then(chain.filter(exchange));
+  }
+
+  private ServerWebExchange mutateWithIdentity(ServerWebExchange exchange, OidcUser user) {
+    LOG.info("user {}", user);
+    return null;
   }
 
   @Override
