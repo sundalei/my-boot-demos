@@ -57,7 +57,10 @@ public class IdentityHeaderFilter implements GlobalFilter, Ordered {
 
   private ServerWebExchange mutateWithIdentity(ServerWebExchange exchange, OidcUser user) {
     LOG.info("user {}", user);
-    return null;
+    String sub = user.getSubject();
+    String oid = user.getClaim("oid");
+    LOG.info("sub {}, oid {}", sub, oid);
+    return exchange;
   }
 
   @Override
