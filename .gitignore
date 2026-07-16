@@ -6,3 +6,4 @@ github_conf/
 report/
 super-linter-output/
 /mongo-es-demo/src/main/resources/application-local.yml
+entra-gateway-demo/src/main/resources/application.yml.local
