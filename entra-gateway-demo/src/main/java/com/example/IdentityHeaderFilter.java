@@ -47,8 +47,9 @@ public class IdentityHeaderFilter implements GlobalFilter, Ordered {
         .doOnNext(
             user ->
                 LOG.info(
-                    "4) oidc: sub={}, email={}, preferredUsername={}",
+                    "4) oidc: sub={}, oid={}, email={}, preferredUsername={}",
                     user.getSubject(),
+                    user.getClaim("oid"),
                     user.getEmail(),
                     user.getPreferredUsername()))
         .map(oidcUser -> mutateWithIdentity(exchange, oidcUser))
@@ -58,8 +59,9 @@ public class IdentityHeaderFilter implements GlobalFilter, Ordered {
   private ServerWebExchange mutateWithIdentity(ServerWebExchange exchange, OidcUser user) {
     LOG.info("user {}", user);
     String sub = user.getSubject();
-    String oid = user.getClaim("oid");
-    LOG.info("sub {}, oid {}", sub, oid);
+    String oid = user.getClaimAsString("oid");
+    String name = user.getFullName() != null ? user.getFullName() : user.getClaimAsString("name");
+    LOG.info("user name {}", name);
     return exchange;
   }
 
