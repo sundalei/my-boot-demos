@@ -10,13 +10,13 @@ spring:
       server:
         webflux:
           routes:
-          - id: backend
-            uri: http://localhost:9090
-            predicates:
-              - Path=/**
-            filters:
-              - TokenRelay=
-            
+            - id: backend
+              uri: http://localhost:9090
+              predicates:
+                - Path=/**
+              filters:
+                - TokenRelay=
+
   security:
     oauth2:
       client:
