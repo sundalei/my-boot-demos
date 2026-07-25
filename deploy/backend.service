@@ -1,0 +1,19 @@
+[Unit]
+Description=entra-id-backend (port 9090, loopback)
+After=network.target
+
+[Service]
+Type=simple
+User=appsvc
+Group=appsvc
+WorkingDirectory=/opt/gateway-demo
+# The module's application.yaml sets port 9090 but not the bind address; force
+# loopback so nothing outside the box can hit it directly and forge headers.
+Environment=SERVER_ADDRESS=127.0.0.1
+ExecStart=/usr/bin/java -jar /opt/gateway-demo/backend.jar
+SuccessExitStatus=143
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

@@ -110,6 +110,8 @@
                 <exclude>**/target/**</exclude>
                 <exclude>**/node_modules/**</exclude>
               </excludes>
+              <trimTrailingWhitespace/>
+              <endWithNewline/>
               <prettier>
                 <devDependencyProperties>
                   <property>
@@ -123,6 +125,7 @@
                 </devDependencyProperties>
                 <config>
                   <printWidth>120</printWidth>
+                  <tabWidth>2</tabWidth>
                   <plugins>@prettier/plugin-xml</plugins>
                 </config>
               </prettier>

@@ -1,0 +1,47 @@
+# Gateway (entra-gateway-demo) PRODUCTION profile — activate with
+# SPRING_PROFILES_ACTIVE=prod. Place next to gateway.jar in /opt/gateway-demo so
+# Spring Boot picks it up. Overrides the module's dev application.yml.
+# All secrets come from environment variables (see gateway.env).
+
+server:
+  port: 443
+  ssl:
+    enabled: true
+    key-store: ${GATEWAY_TLS_KEYSTORE}          # e.g. /opt/gateway-demo/app.p12
+    key-store-type: PKCS12
+    key-store-password: ${GATEWAY_TLS_PASSWORD}
+    key-alias: gateway
+
+spring:
+  cloud:
+    gateway:
+      server:
+        webflux:                                # Boot 4 / Spring Cloud 2025 structure
+          routes:
+            - id: backend
+              uri: http://127.0.0.1:9090        # entra-id-backend, loopback only
+              predicates:
+                - Path=/**
+              filters:
+                - TokenRelay=                   # relay the access token as Bearer
+
+  security:
+    oauth2:
+      client:
+        registration:
+          entra:
+            client-id: ${ENTRA_CLIENT_ID}
+            client-secret: ${ENTRA_CLIENT_SECRET}
+            scope: openid, profile, email
+            authorization-grant-type: authorization_code
+            # Gateway is directly on 443 with the real host, so {baseUrl} resolves
+            # to https://app.sundalei.tech — the redirect URI you register in Entra.
+            redirect-uri: "{baseUrl}/login/oauth2/code/entra"
+        provider:
+          entra:
+            issuer-uri: https://login.microsoftonline.com/${ENTRA_TENANT_ID}/v2.0
+
+logging:
+  level:
+    "[org.springframework.security]": INFO
+    "[org.springframework.cloud.gateway]": INFO
