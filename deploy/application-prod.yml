@@ -18,8 +18,10 @@ spring:
       server:
         webflux:                                # Boot 4 / Spring Cloud 2025 structure
           routes:
+            # 9091, not the module default 9090: Cockpit owns 9090 on Rocky.
+            # Keep in sync with SERVER_PORT in backend.service.
             - id: backend
-              uri: http://127.0.0.1:9090        # entra-id-backend, loopback only
+              uri: http://127.0.0.1:9091        # entra-id-backend, loopback only
               predicates:
                 - Path=/**
               filters:

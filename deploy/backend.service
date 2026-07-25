@@ -1,5 +1,5 @@
 [Unit]
-Description=entra-id-backend (port 9090, loopback)
+Description=entra-id-backend (port 9091, loopback)
 After=network.target
 
 [Service]
@@ -7,9 +7,12 @@ Type=simple
 User=appsvc
 Group=appsvc
 WorkingDirectory=/opt/gateway-demo
-# The module's application.yaml sets port 9090 but not the bind address; force
-# loopback so nothing outside the box can hit it directly and forge headers.
+# Force loopback so nothing outside the box can hit the backend directly and
+# forge identity headers.
 Environment=SERVER_ADDRESS=127.0.0.1
+# Override the module's default 9090: on Rocky, Cockpit (the web console) already
+# listens on 9090. Keep in sync with the route uri in application-prod.yml.
+Environment=SERVER_PORT=9091
 ExecStart=/usr/bin/java -jar /opt/gateway-demo/backend.jar
 SuccessExitStatus=143
 Restart=on-failure

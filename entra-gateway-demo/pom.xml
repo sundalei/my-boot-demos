@@ -31,4 +31,16 @@
       <classifier>osx-aarch_64</classifier>
     </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <!-- Required: repackages the jar as an executable Spring Boot fat jar.
+           Without this, `java -jar gateway.jar` fails with
+           "no main manifest attribute". -->
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
 </project>
