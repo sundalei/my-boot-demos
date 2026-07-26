@@ -13,11 +13,11 @@ LIVE="/etc/letsencrypt/live/${DOMAIN}"
 source /etc/gateway-demo/gateway.env
 
 openssl pkcs12 -export \
-	-in "${LIVE}/fullchain.pem" \
-	-inkey "${LIVE}/privkey.pem" \
-	-name gateway \
-	-out "${GATEWAY_TLS_KEYSTORE}" \
-	-passout pass:"${GATEWAY_TLS_PASSWORD}"
+    -in  "${LIVE}/fullchain.pem" \
+    -inkey "${LIVE}/privkey.pem" \
+    -name gateway \
+    -out "${GATEWAY_TLS_KEYSTORE}" \
+    -passout pass:"${GATEWAY_TLS_PASSWORD}"
 
 chown appsvc:appsvc "${GATEWAY_TLS_KEYSTORE}"
 chmod 640 "${GATEWAY_TLS_KEYSTORE}"
