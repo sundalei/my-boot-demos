@@ -27,6 +27,7 @@ Assumes an Ubuntu/Debian VPS with sudo.
 ## 1. Point DNS at the VPS
 
 Create an **A record**: `app.sundalei.tech` → your VPS public IP.
+
 ```bash
 dig +short app.sundalei.tech        # should print your VPS IP
 ```
@@ -56,10 +57,12 @@ mvn -pl entra-gateway-demo,entra-id-backend -am -DskipTests package
 
 `-pl` builds just these two modules, `-am` also builds the parent/anything they
 depend on. You get:
+
 - `entra-gateway-demo/target/entra-gateway-demo-1.0.0-SNAPSHOT.jar`
 - `entra-id-backend/target/entra-id-backend-1.0.0-SNAPSHOT.jar`
 
 Stage them under stable names the services expect:
+
 ```bash
 sudo mkdir -p /opt/gateway-demo
 sudo cp entra-gateway-demo/target/entra-gateway-demo-1.0.0-SNAPSHOT.jar /opt/gateway-demo/gateway.jar
@@ -79,7 +82,7 @@ Azure portal → **Entra ID → App registrations → New registration**:
 
 1. Name: `app-sundalei-gateway`.
 2. **Redirect URI** → platform **Web** →
-   ```
+   ```text
    https://app.sundalei.tech/login/oauth2/code/entra
    ```
 3. Register. Copy **Application (client) ID** and **Directory (tenant) ID** from Overview.
@@ -124,6 +127,7 @@ sudo ss -ltnp | grep -E ':(80|443)'      # should now print nothing
 sudo apt install -y certbot
 sudo certbot certonly --standalone -d app.sundalei.tech --agree-tos -m you@example.com -n
 ```
+
 Certs land in `/etc/letsencrypt/live/app.sundalei.tech/` → `fullchain.pem`, `privkey.pem`.
 
 ---
@@ -131,6 +135,7 @@ Certs land in `/etc/letsencrypt/live/app.sundalei.tech/` → `fullchain.pem`, `p
 ## 7. Convert the cert to a PKCS12 keystore for Spring
 
 Use the same password you put in `gateway.env` as `GATEWAY_TLS_PASSWORD`:
+
 ```bash
 source /etc/gateway-demo/gateway.env
 sudo openssl pkcs12 -export \
@@ -183,6 +188,7 @@ sudo ufw allow 443/tcp    # the gateway
    access token payload.
 
 Logs:
+
 ```bash
 sudo journalctl -u gateway.service -f
 sudo journalctl -u backend.service -f
@@ -201,6 +207,7 @@ sudo cp deploy/letsencrypt-deploy-hook.sh /etc/letsencrypt/renewal-hooks/deploy/
 sudo chmod +x /etc/letsencrypt/renewal-hooks/deploy/gateway.sh
 sudo certbot renew --dry-run
 ```
+
 Renewal uses standalone mode (needs port 80 free momentarily). Since the gateway is
 on 443 and Caddy stays stopped, port 80 is free — renewal works, then the hook
 rebuilds the keystore and restarts the gateway.
@@ -215,6 +222,7 @@ sudo systemctl disable gateway.service backend.service   # optional
 sudo systemctl enable --now caddy
 sudo ss -ltnp | grep -E ':(80|443)'      # caddy owns them again
 ```
+
 Handoff: the gateway must release 443 before Caddy can rebind it.
 
 ---
