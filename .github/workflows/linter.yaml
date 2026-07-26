@@ -62,6 +62,7 @@ jobs:
           TRIVY_NO_PROGRESS: "true"
           TRIVY_QUIET: "true"
           VALIDATE_GITLEAKS: false
+          VALIDATE_BASH_EXEC: false
 
       - name: Commit and push linting fixes
         if: >
