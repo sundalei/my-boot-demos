@@ -13,7 +13,7 @@ LIVE="/etc/letsencrypt/live/${DOMAIN}"
 source /etc/gateway-demo/gateway.env
 
 openssl pkcs12 -export \
-  -in  "${LIVE}/fullchain.pem" \
+  -in "${LIVE}/fullchain.pem" \
   -inkey "${LIVE}/privkey.pem" \
   -name gateway \
   -out "${GATEWAY_TLS_KEYSTORE}" \
