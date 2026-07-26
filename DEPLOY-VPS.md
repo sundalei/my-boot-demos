@@ -79,7 +79,7 @@ Azure portal → **Entra ID → App registrations → New registration**:
 
 1. Name: `app-sundalei-gateway`.
 2. **Redirect URI** → platform **Web** →
-   ```
+   ```text
    https://app.sundalei.tech/login/oauth2/code/entra
    ```
 3. Register. Copy **Application (client) ID** and **Directory (tenant) ID** from Overview.
