@@ -1,8 +1,8 @@
 package com.example.controller;
 
-import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -17,33 +17,32 @@ import org.springframework.web.bind.annotation.RestController;
 public class EntraIdController {
 
   /**
-   * Endpoint to verify headers injected by IdentityHeaderFilter and TokenRelay. To test this via
-   * the Gateway, hit: http://localhost:8080/api/me/headers
+   * Endpoint to verify the Maverics-compatible identity headers injected by IdentityHeaderFilter. To
+   * test this via the Gateway, hit: http://localhost:8080/api/me/headers
    */
   @GetMapping("/headers")
   public ResponseEntity<Map<String, String>> getHeaders(
-      @RequestHeader(value = "X-Auth-Sub", defaultValue = "Not Provided") String sub,
-      @RequestHeader(value = "X-Auth-Name", defaultValue = "Not Provided") String name,
-      @RequestHeader(value = "X-Auth-Email", defaultValue = "Not Provided") String email,
-      @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authHeader) {
+      @RequestHeader(value = "Remote-User", defaultValue = "Not Provided") String remoteUser,
+      @RequestHeader(value = "X-Remote-User", defaultValue = "Not Provided") String xRemoteUser,
+      @RequestHeader(value = "Smuniversalid", defaultValue = "Not Provided") String smUniversalId,
+      @RequestHeader(value = "X-Auth-Uids", defaultValue = "Not Provided") String uids,
+      @RequestHeader(value = "X-Auth-Time", defaultValue = "Not Provided") String authTime,
+      @RequestHeader(value = "X-Auth-Strength", defaultValue = "Not Provided") String authStrength,
+      @RequestHeader(value = "X-Auth-Location", defaultValue = "Not Provided") String location,
+      @RequestHeader(value = "X-Auth-Channel", defaultValue = "Not Provided") String channel,
+      @RequestHeader(value = "X-Auth-Mandator", defaultValue = "Not Provided") String mandator) {
 
-    // The gateway URL-encodes the name to avoid non-ASCII header issues
-    String decodedName =
-        "Not Provided".equals(name) ? name : URLDecoder.decode(name, StandardCharsets.UTF_8);
-
-    // Provide a snippet of the Bearer token if it exists
-    String tokenPreview = "Not Provided";
-    if (authHeader != null && authHeader.startsWith("Bearer ")) {
-      String token = authHeader.substring(7);
-      tokenPreview = token.length() > 20 ? token.substring(0, 20) + "..." : token;
-    }
-
-    return ResponseEntity.ok(
-        Map.of(
-            "sub", sub,
-            "name", decodedName,
-            "email", email,
-            "bearer_token_preview", tokenPreview));
+    Map<String, String> body = new LinkedHashMap<>();
+    body.put("Remote-User", remoteUser);
+    body.put("X-Remote-User", xRemoteUser);
+    body.put("Smuniversalid", smUniversalId);
+    body.put("X-Auth-Uids", uids);
+    body.put("X-Auth-Time", authTime);
+    body.put("X-Auth-Strength", authStrength);
+    body.put("X-Auth-Location", location);
+    body.put("X-Auth-Channel", channel);
+    body.put("X-Auth-Mandator", mandator);
+    return ResponseEntity.ok(body);
   }
 
   /**
