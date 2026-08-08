@@ -32,6 +32,18 @@ spring:
           entra:
             issuer-uri: ""
 
+# Experiment: an Entra-authenticated but app-unprovisioned user gets 400 on this endpoint,
+# which crashes the SPA. Present it as 401 so the SPA runs its own redirect-to-login handling.
+# Set enabled=false (or override via -Didd.gateway.no-access.enabled=false) to turn it off
+# without a rebuild.
+idd:
+  gateway:
+    no-access:
+      enabled: true
+      path: /common/customer
+      from-status: 400
+      to-status: 401
+
 logging:
   level:
     "[org.springframework.security]": DEBUG
