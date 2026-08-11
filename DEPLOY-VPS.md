@@ -69,23 +69,27 @@ mvn -pl entra-gateway-demo,entra-id-backend -am -DskipTests package
 
 `-pl` builds just these two modules, `-am` also builds the parent/anything they
 depend on. You get:
+
 - `entra-gateway-demo/target/entra-gateway-demo-1.0.0-SNAPSHOT.jar`
 - `entra-id-backend/target/entra-id-backend-1.0.0-SNAPSHOT.jar`
 
 **Verify both jars are executable fat jars before going further** — a module missing
 `spring-boot-maven-plugin` silently produces a thin jar that dies instantly with
 "no main manifest attribute":
+
 ```bash
 for j in entra-gateway-demo entra-id-backend; do
   echo "== $j"
   unzip -p $j/target/$j-1.0.0-SNAPSHOT.jar META-INF/MANIFEST.MF | grep -E "Main-Class|Start-Class"
 done
 ```
+
 Each must print `Main-Class: org.springframework.boot.loader.launch.JarLauncher` and
 `Start-Class: com.example.Application`. If one prints nothing, its `pom.xml` is missing
 the `spring-boot-maven-plugin` in `<build><plugins>`.
 
 Stage them under stable names the services expect:
+
 ```bash
 sudo mkdir -p /opt/gateway-demo
 sudo cp entra-gateway-demo/target/entra-gateway-demo-1.0.0-SNAPSHOT.jar /opt/gateway-demo/gateway.jar
@@ -151,11 +155,13 @@ sudo ss -ltnp | grep -E ':(80|443)'      # should now print nothing
 > Step 9 now, then retry.
 
 certbot lives in EPEL on Rocky, so enable EPEL first:
+
 ```bash
 sudo dnf install -y epel-release
 sudo dnf install -y certbot
 sudo certbot certonly --standalone -d app.sundalei.tech --agree-tos -m you@example.com -n
 ```
+
 Certs land in `/etc/letsencrypt/live/app.sundalei.tech/` → `fullchain.pem`, `privkey.pem`.
 
 ---
@@ -189,7 +195,7 @@ sudo ls -l /opt/gateway-demo/app.p12       # verify: appsvc:appsvc, mode 640
 `gateway.env` is mode 600 owned by `appsvc`, so your login user can't read it — and
 `source` can't be sudo'd (it's a shell builtin, so `sudo source` gives
 "command not found"). Plain `sudo openssl ... -out "$GATEWAY_TLS_KEYSTORE"` also
-fails quietly, because your shell expands the variable *before* sudo runs, leaving it
+fails quietly, because your shell expands the variable _before_ sudo runs, leaving it
 empty. `sudo` elevates a single command; it doesn't carry shell state.
 
 If you'd rather have the values read from the env file automatically (no risk of them
@@ -205,6 +211,7 @@ sudo bash -c 'source /etc/gateway-demo/gateway.env && \
   chown appsvc:appsvc "$GATEWAY_TLS_KEYSTORE" && \
   chmod 640 "$GATEWAY_TLS_KEYSTORE"'
 ```
+
 </details>
 
 ---
@@ -309,6 +316,7 @@ sudo firewall-cmd --list-services                    # verify http https present
    access token payload.
 
 Logs:
+
 ```bash
 sudo journalctl -u gateway.service -f
 sudo journalctl -u backend.service -f
@@ -327,6 +335,7 @@ sudo cp deploy/letsencrypt-deploy-hook.sh /etc/letsencrypt/renewal-hooks/deploy/
 sudo chmod +x /etc/letsencrypt/renewal-hooks/deploy/gateway.sh
 sudo certbot renew --dry-run
 ```
+
 Renewal uses standalone mode (needs port 80 free momentarily). Since the gateway is
 on 443 and Caddy stays stopped, port 80 is free — renewal works, then the hook
 rebuilds the keystore and restarts the gateway.
@@ -345,6 +354,7 @@ sudo systemctl disable gateway.service backend.service   # no auto-start on rebo
 sudo systemctl enable --now caddy
 sudo ss -ltnp | grep -E ':(80|443)'      # caddy owns them again
 ```
+
 Handoff: the gateway must release 443 before Caddy can rebind it.
 
 Nothing is destroyed by this — jars, keystore, `gateway.env`, the units, the cert and
@@ -365,7 +375,7 @@ sudo ss -ltnp | grep -E ':(443|9091)'
 > it doesn't need exclusive use of port 80.
 >
 > Also note the renewal deploy hook ends with `systemctl restart gateway.service`, and
-> `restart` *starts* a stopped unit — so if renewal ever succeeds while Caddy is up, the
+> `restart` _starts_ a stopped unit — so if renewal ever succeeds while Caddy is up, the
 > hook would start the gateway and fight Caddy for 443.
 
 ---
