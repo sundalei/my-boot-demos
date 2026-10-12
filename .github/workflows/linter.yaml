@@ -47,7 +47,7 @@ jobs:
           cp -r "$HOME/.m2" /home/runner/work/_temp/_github_home/
 
       - name: Super-linter
-        uses: super-linter/super-linter@v8.7.0
+        uses: super-linter/super-linter@v9.0.0
         env:
           # To report GitHub Actions status checks
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
